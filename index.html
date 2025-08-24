@@ -1,0 +1,2967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Finance Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        }
+        
+        /* Enhanced Glass Effects */
+        .glass-effect { 
+            backdrop-filter: blur(20px); 
+            background: rgba(255, 255, 255, 0.95); 
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Premium Gradients */
+        .gradient-bg { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #5b73e8 100%); 
+            position: relative;
+            overflow: hidden;
+        }
+        .gradient-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.05) 100%);
+            pointer-events: none;
+        }
+        
+        /* Enhanced Shadows */
+        .card-shadow { 
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08), 0 8px 16px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-shadow:hover {
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.12), 0 12px 24px rgba(0, 0, 0, 0.06);
+            transform: translateY(-2px);
+        }
+        
+        /* Enhanced Card Styles */
+        .income-card { 
+            background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .expense-card { 
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .savings-card { 
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        .tuition-card { 
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 50%, #6d28d9 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Card Shine Effect */
+        .income-card::before, .expense-card::before, .savings-card::before, .tuition-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        .income-card:hover::before, .expense-card:hover::before, .savings-card:hover::before, .tuition-card:hover::before {
+            left: 100%;
+        }
+        
+        /* Enhanced Animations */
+        .slide-up { 
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        @keyframes slideUp { 
+            from { 
+                transform: translateY(100%) scale(0.95); 
+                opacity: 0; 
+            } 
+            to { 
+                transform: translateY(0) scale(1); 
+                opacity: 1; 
+            } 
+        }
+        
+        .fade-in { 
+            animation: fadeIn 0.3s ease-out; 
+        }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(10px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        /* Enhanced Button Styles */
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            border: none;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-primary:hover {
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+            transform: translateY(-1px);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .btn-success:hover {
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+            transform: translateY(-1px);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+        .btn-danger:hover {
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+            transform: translateY(-1px);
+        }
+        
+        /* Enhanced Tab Styles */
+        .tab-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        .tab-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        .tab-btn:hover::before {
+            left: 100%;
+        }
+        
+        /* Enhanced Icon Styles */
+        .icon-container {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .icon-container:hover {
+            transform: scale(1.1);
+        }
+        
+        .icon-glow {
+            filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.3));
+        }
+        
+        /* Enhanced Status Indicators */
+        .status-paid { 
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+        }
+        .status-pending { 
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+        }
+        .status-overdue { 
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+        }
+        
+        /* Enhanced Progress Bar */
+        .progress-bar {
+            background: linear-gradient(90deg, #10b981 0%, #059669 50%, #047857 100%);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        /* Enhanced Floating Action Button */
+        .floating-action { 
+            position: fixed; 
+            bottom: 24px; 
+            right: 24px; 
+            z-index: 50; 
+        }
+        .fab-main {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .fab-main:hover {
+            box-shadow: 0 12px 32px rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px) scale(1.05);
+        }
+        
+        /* Enhanced Modal Styles */
+        .modal-backdrop {
+            backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.6);
+        }
+        .modal-content {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Enhanced Input Styles */
+        .form-input {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            background: rgba(255, 255, 255, 0.8);
+        }
+        .form-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+            background: rgba(255, 255, 255, 1);
+        }
+        
+        /* Mobile Optimizations */
+        .mobile-safe { 
+            padding-bottom: env(safe-area-inset-bottom); 
+        }
+        
+        /* Enhanced Typography */
+        .text-gradient {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Loading States */
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        /* Sync Status Indicator */
+        .sync-indicator {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 60;
+            transition: all 0.3s ease;
+        }
+        
+        .sync-indicator.syncing {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen mobile-safe">
+    <!-- Sync Status Indicator -->
+    <div id="syncIndicator" class="sync-indicator hidden">
+        <div class="bg-blue-600 text-white px-3 py-2 rounded-lg shadow-lg text-xs font-medium flex items-center">
+            <i class="fas fa-sync-alt mr-2"></i>
+            <span id="syncStatus">Syncing...</span>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="gradient-bg text-white p-6 sticky top-0 z-40">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="icon-container bg-white bg-opacity-20 p-3 rounded-2xl">
+                    <i class="fas fa-chart-line text-2xl icon-glow"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">
+                        Personal Finance Tracker
+                    </h1>
+                    <p class="text-sm opacity-90 flex items-center">
+                        <i class="fas fa-code mr-1"></i>
+                        Built by Sayandip Bera
+                        <span id="connectionStatus" class="ml-2 px-2 py-1 bg-green-500 bg-opacity-30 rounded-full text-xs">
+                            <i class="fas fa-wifi mr-1"></i>Online
+                        </span>
+                    </p>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="flex items-center justify-end mb-1">
+                    <i class="fas fa-coins text-sm opacity-75 mr-1"></i>
+                    <div class="text-xs opacity-75">Net Balance</div>
+                </div>
+                <div id="netBalance" class="text-2xl font-bold tracking-tight">₹0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="p-6 -mt-8 relative z-10">
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <!-- Income Card -->
+            <div class="income-card text-white rounded-3xl p-6 card-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-trending-up text-sm opacity-90 mr-2"></i>
+                            <div class="text-xs opacity-90 font-medium">Total Income</div>
+                        </div>
+                        <div id="totalIncome" class="text-2xl font-bold tracking-tight">₹0</div>
+                    </div>
+                    <div class="icon-container bg-white bg-opacity-20 p-4 rounded-2xl">
+                        <i class="fas fa-arrow-up text-2xl icon-glow"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Expense Card -->
+            <div class="expense-card text-white rounded-3xl p-6 card-shadow">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="flex items-center mb-2">
+                            <i class="fas fa-trending-down text-sm opacity-90 mr-2"></i>
+                            <div class="text-xs opacity-90 font-medium">Total Expenses</div>
+                        </div>
+                        <div id="totalExpenses" class="text-2xl font-bold tracking-tight">₹0</div>
+                    </div>
+                    <div class="icon-container bg-white bg-opacity-20 p-4 rounded-2xl">
+                        <i class="fas fa-arrow-down text-2xl icon-glow"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-3 gap-3 mb-6">
+            <!-- Tuition Income -->
+            <div class="tuition-card text-white rounded-2xl p-4 card-shadow">
+                <div class="text-center">
+                    <div class="icon-container bg-white bg-opacity-20 p-3 rounded-xl mx-auto mb-2">
+                        <i class="fas fa-graduation-cap text-xl icon-glow"></i>
+                    </div>
+                    <div class="text-xs opacity-90 font-medium mb-1">Tuition</div>
+                    <div id="tuitionIncome" class="text-lg font-bold tracking-tight">₹0</div>
+                </div>
+            </div>
+            
+            <!-- Cash Balance -->
+            <div class="bg-gradient-to-br from-orange-500 via-orange-600 to-orange-700 text-white rounded-2xl p-4 card-shadow relative overflow-hidden">
+                <div class="text-center relative z-10">
+                    <div class="icon-container bg-white bg-opacity-20 p-3 rounded-xl mx-auto mb-2">
+                        <i class="fas fa-wallet text-xl icon-glow"></i>
+                    </div>
+                    <div class="text-xs opacity-90 font-medium mb-1">Cash</div>
+                    <div id="cashBalance" class="text-lg font-bold tracking-tight">₹0</div>
+                </div>
+            </div>
+            
+            <!-- Online Balance -->
+            <div class="bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 text-white rounded-2xl p-4 card-shadow relative overflow-hidden">
+                <div class="text-center relative z-10">
+                    <div class="icon-container bg-white bg-opacity-20 p-3 rounded-xl mx-auto mb-2">
+                        <i class="fas fa-credit-card text-xl icon-glow"></i>
+                    </div>
+                    <div class="text-xs opacity-90 font-medium mb-1">Online</div>
+                    <div id="onlineBalance" class="text-lg font-bold tracking-tight">₹0</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 gap-3">
+            <!-- Savings -->
+            <div class="savings-card text-white rounded-3xl p-6 card-shadow">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="icon-container bg-white bg-opacity-20 p-4 rounded-2xl">
+                            <i class="fas fa-piggy-bank text-2xl icon-glow"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center mb-1">
+                                <i class="fas fa-chart-pie text-sm opacity-90 mr-2"></i>
+                                <div class="text-sm opacity-90 font-medium">Total Savings</div>
+                            </div>
+                            <div id="totalSavings" class="text-2xl font-bold tracking-tight">₹0</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-xs opacity-75">Growth</div>
+                        <div class="flex items-center text-sm font-semibold">
+                            <i class="fas fa-arrow-up text-xs mr-1"></i>
+                            <span>+0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="px-6 mb-6">
+        <div class="glass-effect rounded-3xl p-2 card-shadow">
+            <div class="grid grid-cols-4 gap-2">
+                <button onclick="showTab('dashboard')" id="dashboardTab" class="tab-btn active py-4 px-3 rounded-2xl text-xs font-semibold transition-all flex flex-col items-center space-y-1">
+                    <div class="icon-container">
+                        <i class="fas fa-chart-line text-lg"></i>
+                    </div>
+                    <span>Dashboard</span>
+                </button>
+                <button onclick="showTab('tuition')" id="tuitionTab" class="tab-btn py-4 px-3 rounded-2xl text-xs font-semibold transition-all flex flex-col items-center space-y-1 text-gray-600">
+                    <div class="icon-container">
+                        <i class="fas fa-graduation-cap text-lg"></i>
+                    </div>
+                    <span>Tuition</span>
+                </button>
+                <button onclick="showTab('transactions')" id="transactionsTab" class="tab-btn py-4 px-3 rounded-2xl text-xs font-semibold transition-all flex flex-col items-center space-y-1 text-gray-600">
+                    <div class="icon-container">
+                        <i class="fas fa-wallet text-lg"></i>
+                    </div>
+                    <span>Money</span>
+                </button>
+                <button onclick="showTab('analytics')" id="analyticsTab" class="tab-btn py-4 px-3 rounded-2xl text-xs font-semibold transition-all flex flex-col items-center space-y-1 text-gray-600">
+                    <div class="icon-container">
+                        <i class="fas fa-chart-bar text-lg"></i>
+                    </div>
+                    <span>Reports</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Tab -->
+    <div id="dashboardContent" class="tab-content px-6">
+        <!-- Recent Transactions -->
+        <div class="glass-effect rounded-3xl p-6 mb-6 card-shadow">
+            <div class="flex items-center mb-4">
+                <div class="icon-container bg-blue-100 p-3 rounded-2xl mr-3">
+                    <i class="fas fa-history text-blue-600 text-lg"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">Recent Transactions</h3>
+            </div>
+            <div id="recentTransactions" class="space-y-3">
+                <div class="text-center py-8 text-gray-500">
+                    <div class="icon-container bg-gray-100 p-4 rounded-2xl mx-auto mb-3">
+                        <i class="fas fa-receipt text-2xl text-gray-400"></i>
+                    </div>
+                    <p class="text-sm font-medium">No recent transactions</p>
+                    <p class="text-xs opacity-75">Your latest transactions will appear here</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="glass-effect rounded-3xl p-6 mb-6 card-shadow">
+            <div class="flex items-center mb-4">
+                <div class="icon-container bg-purple-100 p-3 rounded-2xl mr-3">
+                    <i class="fas fa-bolt text-purple-600 text-lg"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">Quick Actions</h3>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="showAddIncomeModal()" class="btn-success text-white py-4 px-6 rounded-2xl font-semibold transition-all flex items-center justify-center space-x-2">
+                    <div class="icon-container bg-white bg-opacity-20 p-2 rounded-lg">
+                        <i class="fas fa-plus text-sm"></i>
+                    </div>
+                    <span>Add Income</span>
+                </button>
+                <button onclick="showAddExpenseModal()" class="btn-danger text-white py-4 px-6 rounded-2xl font-semibold transition-all flex items-center justify-center space-x-2">
+                    <div class="icon-container bg-white bg-opacity-20 p-2 rounded-lg">
+                        <i class="fas fa-minus text-sm"></i>
+                    </div>
+                    <span>Add Expense</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Monthly Summary -->
+        <div class="glass-effect rounded-3xl p-6 card-shadow">
+            <div class="flex items-center mb-4">
+                <div class="icon-container bg-indigo-100 p-3 rounded-2xl mr-3">
+                    <i class="fas fa-calendar-alt text-indigo-600 text-lg"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">This Month Summary</h3>
+            </div>
+            <div class="space-y-4">
+                <div class="flex justify-between items-center p-3 bg-green-50 rounded-2xl">
+                    <div class="flex items-center">
+                        <i class="fas fa-arrow-up text-green-600 mr-3"></i>
+                        <span class="font-medium text-gray-700">Income</span>
+                    </div>
+                    <span id="monthlyIncome" class="font-bold text-green-600 text-lg">₹0</span>
+                </div>
+                <div class="flex justify-between items-center p-3 bg-red-50 rounded-2xl">
+                    <div class="flex items-center">
+                        <i class="fas fa-arrow-down text-red-600 mr-3"></i>
+                        <span class="font-medium text-gray-700">Expenses</span>
+                    </div>
+                    <span id="monthlyExpenses" class="font-bold text-red-600 text-lg">₹0</span>
+                </div>
+                <div class="flex justify-between items-center p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border-2 border-blue-100">
+                    <div class="flex items-center">
+                        <i class="fas fa-chart-line text-blue-600 mr-3"></i>
+                        <span class="font-semibold text-gray-800">Net Balance</span>
+                    </div>
+                    <span id="monthlyNet" class="font-bold text-blue-600 text-xl">₹0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tuition Tab -->
+    <div id="tuitionContent" class="tab-content px-4 hidden">
+        <!-- Add Student Card -->
+        <div class="bg-white rounded-2xl p-4 mb-4 card-shadow">
+            <h3 class="font-semibold text-gray-800 mb-3 flex items-center">
+                <i class="fas fa-user-plus text-blue-600 mr-2"></i>
+                Add New Student
+            </h3>
+            <form id="studentForm" class="space-y-3">
+                <div class="grid grid-cols-1 gap-3">
+                    <input type="text" id="studentName" placeholder="Full Name" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                    
+                    <select id="studentDepartment" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="">Select Subject/Course</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Biology">Biology</option>
+                        <option value="English">English</option>
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="Economics">Economics</option>
+                        <option value="Accounting">Accounting</option>
+                    </select>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <input type="number" id="courseDuration" min="1" max="48" placeholder="Duration (months)" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                        <input type="number" id="monthlyFee" step="0.01" placeholder="Monthly Fee ₹" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                    </div>
+                    
+                    <input type="email" id="studentEmail" placeholder="Email (for payment confirmations)" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent" required>
+                    
+                    <input type="tel" id="studentPhone" placeholder="Phone Number (optional)" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                </div>
+                
+                <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium py-3 px-4 rounded-xl transition duration-200 hover:shadow-lg">
+                    <i class="fas fa-plus mr-2"></i>Add Student
+                </button>
+            </form>
+        </div>
+
+        <!-- Students List -->
+        <div class="space-y-3" id="studentsList">
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-users text-4xl mb-2 block opacity-50"></i>
+                <p>No students added yet</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transactions Tab -->
+    <div id="transactionsContent" class="tab-content px-4 hidden">
+        <!-- Add Transaction Buttons -->
+        <div class="grid grid-cols-2 gap-3 mb-4">
+            <button onclick="showAddIncomeModal()" class="bg-green-600 text-white py-3 px-4 rounded-xl font-medium hover:bg-green-700 transition-all">
+                <i class="fas fa-plus mr-2"></i>Add Income
+            </button>
+            <button onclick="showAddExpenseModal()" class="bg-red-600 text-white py-3 px-4 rounded-xl font-medium hover:bg-red-700 transition-all">
+                <i class="fas fa-minus mr-2"></i>Add Expense
+            </button>
+        </div>
+
+        <!-- Transactions List -->
+        <div class="space-y-3" id="transactionsList">
+            <div class="text-center py-8 text-gray-500">
+                <i class="fas fa-exchange-alt text-4xl mb-2 block opacity-50"></i>
+                <p>No transactions recorded yet</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Tab -->
+    <div id="analyticsContent" class="tab-content px-4 hidden">
+        <div class="space-y-4">
+            <!-- Financial Overview -->
+            <div class="bg-white rounded-2xl p-4 card-shadow">
+                <h3 class="font-semibold text-gray-800 mb-3">Financial Overview</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-green-600" id="totalIncomeAnalytics">₹0</div>
+                        <div class="text-xs text-gray-600">Total Income</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-red-600" id="totalExpensesAnalytics">₹0</div>
+                        <div class="text-xs text-gray-600">Total Expenses</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tuition Stats -->
+            <div class="bg-white rounded-2xl p-4 card-shadow">
+                <h3 class="font-semibold text-gray-800 mb-3">Tuition Statistics</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-blue-600" id="totalStudentsAnalytics">0</div>
+                        <div class="text-xs text-gray-600">Total Students</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-purple-600" id="tuitionIncomeAnalytics">₹0</div>
+                        <div class="text-xs text-gray-600">Tuition Income</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Wise Expenses -->
+            <div class="bg-white rounded-2xl p-4 card-shadow">
+                <h3 class="font-semibold text-gray-800 mb-3">Expense Categories</h3>
+                <div id="categoryStats" class="space-y-2">
+                    <!-- Dynamic content -->
+                </div>
+            </div>
+
+            <!-- Export Options -->
+            <div class="bg-white rounded-2xl p-4 card-shadow">
+                <h3 class="font-semibold text-gray-800 mb-3">Export & Sync Data</h3>
+                
+                <!-- Sync Status -->
+                <div class="mb-4 p-3 bg-gray-50 rounded-xl">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-gray-700">Auto-Sync Status</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="autoSyncToggle" class="sr-only peer" checked>
+                            <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                        </label>
+                    </div>
+                    <div class="text-xs text-gray-600" id="lastSyncStatus">
+                        Last sync: Never
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <button onclick="exportToExcel()" class="bg-green-600 text-white py-3 px-4 rounded-xl font-medium hover:bg-green-700 transition-all">
+                        <i class="fas fa-file-excel mr-2"></i>Export CSV
+                    </button>
+                    <button onclick="backupData()" class="bg-blue-600 text-white py-3 px-4 rounded-xl font-medium hover:bg-blue-700 transition-all">
+                        <i class="fas fa-download mr-2"></i>Backup
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-1 gap-3 mb-3">
+                    <button onclick="ExcelAutoSync.syncAllData()" class="w-full bg-purple-600 text-white py-3 px-4 rounded-xl font-medium hover:bg-purple-700 transition-all">
+                        <i class="fas fa-cloud-upload-alt mr-2"></i>Complete Excel Sync
+                    </button>
+                    <button onclick="DatabaseSync.syncAllToDatabase()" class="w-full bg-indigo-600 text-white py-3 px-4 rounded-xl font-medium hover:bg-indigo-700 transition-all">
+                        <i class="fas fa-database mr-2"></i>Sync to Database
+                    </button>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-3 mb-3">
+                    <button onclick="ExcelAutoSync.processPendingSync()" class="bg-orange-600 text-white py-3 px-4 rounded-xl font-medium hover:bg-orange-700 transition-all">
+                        <i class="fas fa-sync mr-2"></i>Excel Queue
+                    </button>
+                    <button onclick="DatabaseSync.processPendingOperations()" class="bg-teal-600 text-white py-3 px-4 rounded-xl font-medium hover:bg-teal-700 transition-all">
+                        <i class="fas fa-server mr-2"></i>DB Queue
+                    </button>
+                </div>
+                
+                <!-- Backend Status -->
+                <div class="mt-3 p-3 bg-blue-50 rounded-xl">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-blue-800">Backend Integration</span>
+                        <span id="backendStatus" class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
+                            <i class="fas fa-check-circle mr-1"></i>Active
+                        </span>
+                    </div>
+                    <div class="text-xs text-blue-700 mb-2">
+                        <i class="fas fa-info-circle mr-1"></i>
+                        All data automatically syncs to Excel and backend database
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        <div class="bg-white p-2 rounded">
+                            <div class="font-medium text-gray-700">Excel Queue</div>
+                            <div id="excelQueueCount" class="text-blue-600">0 pending</div>
+                        </div>
+                        <div class="bg-white p-2 rounded">
+                            <div class="font-medium text-gray-700">DB Queue</div>
+                            <div id="dbQueueCount" class="text-indigo-600">0 pending</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md slide-up">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold">Payment Details</h3>
+                <button onclick="closePaymentModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div id="paymentModalContent">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Income Modal -->
+    <div id="incomeModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md slide-up">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-green-600">Add Income</h3>
+                <button onclick="closeIncomeModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="incomeForm" class="space-y-4">
+                <input type="text" id="incomeDescription" placeholder="Description" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                
+                <input type="number" id="incomeAmount" step="0.01" placeholder="Amount ₹" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                
+                <select id="incomeCategory" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                    <option value="">Select Category</option>
+                    <option value="Tuition & Education">📚 Tuition & Education</option>
+                    <option value="Salary">💼 Salary</option>
+                    <option value="Freelance">💻 Freelance</option>
+                    <option value="Investment">📈 Investment</option>
+                    <option value="Gift">🎁 Gift</option>
+                    <option value="Other">📋 Other</option>
+                </select>
+                
+                <select id="incomeMethod" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                    <option value="">Payment Method</option>
+                    <option value="Cash">💵 Cash</option>
+                    <option value="Online">💳 Online/UPI</option>
+                    <option value="Bank Transfer">🏦 Bank Transfer</option>
+                    <option value="Cheque">📝 Cheque</option>
+                </select>
+                
+                <input type="date" id="incomeDate" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-transparent" required>
+                
+                <button type="submit" class="w-full bg-green-600 text-white font-medium py-3 px-4 rounded-xl hover:bg-green-700 transition-all">
+                    <i class="fas fa-plus mr-2"></i>Add Income
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Expense Modal -->
+    <div id="expenseModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl p-6 w-full max-w-md slide-up">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-red-600">Add Expense</h3>
+                <button onclick="closeExpenseModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="expenseForm" class="space-y-4">
+                <input type="text" id="expenseDescription" placeholder="Description" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                
+                <input type="number" id="expenseAmount" step="0.01" placeholder="Amount ₹" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                
+                <select id="expenseCategory" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                    <option value="">Select Category</option>
+                    <option value="Food & Dining">🍽️ Food & Dining</option>
+                    <option value="Transport">🚗 Transport</option>
+                    <option value="Utilities">⚡ Utilities</option>
+                    <option value="Entertainment">🎬 Entertainment</option>
+                    <option value="Shopping">🛒 Shopping</option>
+                    <option value="Healthcare">🏥 Healthcare</option>
+                    <option value="Education">📚 Education</option>
+                    <option value="Other">📋 Other</option>
+                </select>
+                
+                <select id="expenseMethod" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                    <option value="">Payment Method</option>
+                    <option value="Cash">💵 Cash</option>
+                    <option value="Online">💳 Online/UPI</option>
+                    <option value="Bank Transfer">🏦 Bank Transfer</option>
+                    <option value="Cheque">📝 Cheque</option>
+                </select>
+                
+                <input type="date" id="expenseDate" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                
+                <button type="submit" class="w-full bg-red-600 text-white font-medium py-3 px-4 rounded-xl hover:bg-red-700 transition-all">
+                    <i class="fas fa-minus mr-2"></i>Add Expense
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <div class="floating-action">
+        <div class="relative">
+            <button id="fabMain" onclick="toggleFAB()" class="fab-main text-white w-16 h-16 rounded-full transition-all duration-300">
+                <div class="icon-container">
+                    <i class="fas fa-plus text-2xl"></i>
+                </div>
+            </button>
+            
+            <!-- FAB Menu -->
+            <div id="fabMenu" class="absolute bottom-20 right-0 space-y-3 hidden">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-black bg-opacity-75 text-white px-3 py-1 rounded-lg text-xs font-medium">
+                        Add Income
+                    </div>
+                    <button onclick="showAddIncomeModal()" class="btn-success w-14 h-14 rounded-full transition-all duration-200 flex items-center justify-center">
+                        <i class="fas fa-arrow-up text-lg"></i>
+                    </button>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="bg-black bg-opacity-75 text-white px-3 py-1 rounded-lg text-xs font-medium">
+                        Add Expense
+                    </div>
+                    <button onclick="showAddExpenseModal()" class="btn-danger w-14 h-14 rounded-full transition-all duration-200 flex items-center justify-center">
+                        <i class="fas fa-arrow-down text-lg"></i>
+                    </button>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="bg-black bg-opacity-75 text-white px-3 py-1 rounded-lg text-xs font-medium">
+                        Tuition
+                    </div>
+                    <button onclick="showTab('tuition')" class="bg-gradient-to-br from-purple-500 to-purple-700 text-white w-14 h-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center">
+                        <i class="fas fa-graduation-cap text-lg"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer" class="fixed top-20 right-4 z-50 space-y-2"></div>
+
+    <script>
+        // Initialize EmailJS
+        emailjs.init("L1AI7irStUJjtnowQ");
+
+        // Excel OneDrive Integration - Your Updated Link
+        const EXCEL_DIRECT_LINK = "https://1drv.ms/x/c/E819039567B5C791/EVfD5RAfwHRHp0tINfk-sasBIOnLvqzJ6ovC56pwkCJQyQ?e=C1AraC";
+        
+        // Backend Database Configuration
+        const DATABASE_CONFIG = {
+            // Multiple backend options for redundancy
+            endpoints: [
+                'https://api.jsonbin.io/v3/b/67598b8ead19ca34f8d4b7b8', // Your JSONBin.io endpoint
+                'https://api.sheety.co/your-sheet-id/finance-tracker', // Sheety (optional)
+                'https://script.google.com/macros/s/your-script-id/exec' // Google Apps Script (optional)
+            ],
+            apiKeys: {
+                jsonbin: '$2a$10$pa7Yi6AkUklK8A5y0I21M.P/NpTvsyzVb.C0/yLuEE.51zoUmVh3S', // Your Master Key
+                sheety: 'Bearer your-sheety-token'
+            },
+            retryAttempts: 3,
+            retryDelay: 2000,
+            syncInterval: 60000 // 1 minute
+        };
+        
+        // Auto-sync settings
+        let autoSyncEnabled = localStorage.getItem('autoSyncEnabled') !== 'false';
+        let lastSyncTime = localStorage.getItem('lastSyncTime') || null;
+        let lastDbSyncTime = localStorage.getItem('lastDbSyncTime') || null;
+        let syncInProgress = false;
+        let dbSyncInProgress = false;
+        let autoSyncInterval = null;
+        let dbSyncInterval = null;
+
+        // Excel Auto-Sync Configuration
+        const EXCEL_CONFIG = {
+            enabled: true,
+            syncInterval: 30000, // 30 seconds
+            maxRetries: 3,
+            retryDelay: 5000 // 5 seconds
+        };
+
+        // Backend Database Integration System
+        class DatabaseSync {
+            static pendingOperations = [];
+            static isOnline = navigator.onLine;
+            static currentEndpoint = 0;
+
+            // Initialize database sync system
+            static init() {
+                try {
+                    this.loadPendingOperations();
+                    this.startDatabaseSync();
+                    this.setupNetworkMonitoring();
+                    console.log('✅ Database Sync System Initialized');
+                } catch (error) {
+                    console.error('Failed to initialize database sync:', error);
+                }
+            }
+
+            // Setup network monitoring
+            static setupNetworkMonitoring() {
+                window.addEventListener('online', () => {
+                    this.isOnline = true;
+                    updateConnectionStatus(true);
+                    showToast('🌐 Back online - resuming database sync', 'success');
+                    this.processPendingOperations();
+                });
+
+                window.addEventListener('offline', () => {
+                    this.isOnline = false;
+                    updateConnectionStatus(false);
+                    showToast('📱 Offline mode - data will sync when reconnected', 'warning');
+                });
+            }
+
+            // Load pending operations from localStorage
+            static loadPendingOperations() {
+                try {
+                    const stored = localStorage.getItem('dbPendingOperations');
+                    if (stored) {
+                        this.pendingOperations = JSON.parse(stored);
+                    }
+                } catch (e) {
+                    console.warn('Failed to load pending operations:', e);
+                    this.pendingOperations = [];
+                }
+            }
+
+            // Save pending operations to localStorage
+            static savePendingOperations() {
+                try {
+                    localStorage.setItem('dbPendingOperations', JSON.stringify(this.pendingOperations));
+                } catch (e) {
+                    console.warn('Failed to save pending operations:', e);
+                }
+            }
+
+            // Queue operation for database sync
+            static queueOperation(operation, data) {
+                try {
+                    const dbOperation = {
+                        id: Date.now() + Math.random(),
+                        operation: operation, // 'create', 'update', 'delete'
+                        type: data.type || 'unknown', // 'student', 'transaction', 'payment'
+                        data: data,
+                        timestamp: new Date().toISOString(),
+                        attempts: 0,
+                        maxAttempts: DATABASE_CONFIG.retryAttempts
+                    };
+
+                    this.pendingOperations.push(dbOperation);
+                    this.savePendingOperations();
+
+                    console.log(`📋 Queued ${operation} operation for ${data.type}:`, dbOperation);
+
+                    // Attempt immediate sync if online
+                    if (this.isOnline && !dbSyncInProgress) {
+                        setTimeout(() => this.processPendingOperations(), 1000);
+                    }
+                } catch (error) {
+                    console.error('Failed to queue database operation:', error);
+                }
+            }
+
+            // Start automatic database sync
+            static startDatabaseSync() {
+                try {
+                    if (dbSyncInterval) {
+                        clearInterval(dbSyncInterval);
+                    }
+
+                    dbSyncInterval = setInterval(() => {
+                        if (this.isOnline && !dbSyncInProgress && this.pendingOperations.length > 0) {
+                            this.processPendingOperations();
+                        }
+                    }, DATABASE_CONFIG.syncInterval);
+
+                    console.log(`🔄 Database sync started (${DATABASE_CONFIG.syncInterval/1000}s interval)`);
+                } catch (error) {
+                    console.error('Failed to start database sync:', error);
+                }
+            }
+
+            // Process pending database operations
+            static async processPendingOperations() {
+                if (dbSyncInProgress || !this.isOnline || this.pendingOperations.length === 0) {
+                    return;
+                }
+
+                try {
+                    dbSyncInProgress = true;
+                    showSyncIndicator(`Syncing ${this.pendingOperations.length} items to database...`);
+
+                    const successfulOperations = [];
+                    const failedOperations = [];
+
+                    // Process operations in batches
+                    for (const operation of this.pendingOperations) {
+                        try {
+                            const success = await this.executeOperation(operation);
+                            if (success) {
+                                successfulOperations.push(operation);
+                            } else {
+                                operation.attempts++;
+                                if (operation.attempts >= operation.maxAttempts) {
+                                    failedOperations.push(operation);
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Operation failed:', error);
+                            operation.attempts++;
+                            if (operation.attempts >= operation.maxAttempts) {
+                                failedOperations.push(operation);
+                            }
+                        }
+
+                        // Small delay between operations
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    }
+
+                    // Remove successful operations
+                    this.pendingOperations = this.pendingOperations.filter(op => 
+                        !successfulOperations.includes(op)
+                    );
+
+                    // Remove permanently failed operations
+                    this.pendingOperations = this.pendingOperations.filter(op => 
+                        !failedOperations.includes(op)
+                    );
+
+                    this.savePendingOperations();
+
+                    // Update sync time
+                    lastDbSyncTime = new Date().toISOString();
+                    localStorage.setItem('lastDbSyncTime', lastDbSyncTime);
+
+                    if (successfulOperations.length > 0) {
+                        showToast(`✅ ${successfulOperations.length} items synced to database!`, 'success');
+                    }
+
+                    if (failedOperations.length > 0) {
+                        showToast(`⚠️ ${failedOperations.length} items failed to sync`, 'warning');
+                    }
+
+                } catch (error) {
+                    console.error('Database sync failed:', error);
+                    showToast('Database sync encountered errors', 'error');
+                } finally {
+                    dbSyncInProgress = false;
+                    hideSyncIndicator();
+                    updateSyncStatusDisplay();
+                }
+            }
+
+            // Execute individual database operation
+            static async executeOperation(operation) {
+                try {
+                    const endpoint = DATABASE_CONFIG.endpoints[this.currentEndpoint];
+                    
+                    // Try different endpoints if current fails
+                    for (let i = 0; i < DATABASE_CONFIG.endpoints.length; i++) {
+                        try {
+                            const result = await this.sendToEndpoint(
+                                DATABASE_CONFIG.endpoints[this.currentEndpoint], 
+                                operation
+                            );
+                            
+                            if (result) {
+                                return true;
+                            }
+                        } catch (error) {
+                            console.warn(`Endpoint ${this.currentEndpoint} failed:`, error);
+                            this.currentEndpoint = (this.currentEndpoint + 1) % DATABASE_CONFIG.endpoints.length;
+                        }
+                    }
+
+                    return false;
+                } catch (error) {
+                    console.error('Failed to execute operation:', error);
+                    return false;
+                }
+            }
+
+            // Send data to specific endpoint
+            static async sendToEndpoint(endpoint, operation) {
+                try {
+                    // JSONBin.io integration
+                    if (endpoint.includes('jsonbin.io')) {
+                        return await this.syncToJSONBin(operation);
+                    }
+                    
+                    // Sheety integration
+                    if (endpoint.includes('sheety.co')) {
+                        return await this.syncToSheety(operation);
+                    }
+                    
+                    // Google Apps Script integration
+                    if (endpoint.includes('script.google.com')) {
+                        return await this.syncToGoogleScript(operation);
+                    }
+
+                    // Generic REST API
+                    return await this.syncToGenericAPI(endpoint, operation);
+                } catch (error) {
+                    console.error('Endpoint sync failed:', error);
+                    return false;
+                }
+            }
+
+            // Sync to JSONBin.io
+            static async syncToJSONBin(operation) {
+                try {
+                    // Get current data
+                    const currentData = {
+                        students: students,
+                        transactions: transactions,
+                        payments: payments,
+                        lastUpdated: new Date().toISOString(),
+                        operation: operation
+                    };
+
+                    const response = await fetch(DATABASE_CONFIG.endpoints[0], {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-Master-Key': DATABASE_CONFIG.apiKeys.jsonbin
+                        },
+                        body: JSON.stringify(currentData)
+                    });
+
+                    return response.ok;
+                } catch (error) {
+                    console.error('JSONBin sync failed:', error);
+                    return false;
+                }
+            }
+
+            // Sync to Sheety
+            static async syncToSheety(operation) {
+                try {
+                    let endpoint = DATABASE_CONFIG.endpoints[1];
+                    let method = 'POST';
+                    let body = {};
+
+                    // Determine endpoint and data based on operation
+                    if (operation.type === 'student') {
+                        endpoint += '/students';
+                        body = {
+                            student: {
+                                id: operation.data.id,
+                                name: operation.data.name,
+                                department: operation.data.department,
+                                monthlyFee: operation.data.monthlyFee,
+                                email: operation.data.email,
+                                phone: operation.data.phone || '',
+                                joinDate: operation.data.joinDate
+                            }
+                        };
+                    } else if (operation.type === 'transaction') {
+                        endpoint += '/transactions';
+                        body = {
+                            transaction: {
+                                id: operation.data.id,
+                                type: operation.data.type,
+                                description: operation.data.description,
+                                amount: operation.data.amount,
+                                category: operation.data.category,
+                                method: operation.data.method,
+                                date: operation.data.date
+                            }
+                        };
+                    } else if (operation.type === 'payment') {
+                        endpoint += '/payments';
+                        body = {
+                            payment: {
+                                id: operation.data.id,
+                                studentId: operation.data.studentId,
+                                studentName: operation.data.studentName,
+                                amount: operation.data.amount,
+                                month: operation.data.month,
+                                date: operation.data.date,
+                                method: operation.data.method
+                            }
+                        };
+                    }
+
+                    const response = await fetch(endpoint, {
+                        method: method,
+                        headers: {
+                            'Authorization': DATABASE_CONFIG.apiKeys.sheety,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(body)
+                    });
+
+                    return response.ok;
+                } catch (error) {
+                    console.error('Sheety sync failed:', error);
+                    return false;
+                }
+            }
+
+            // Sync to Google Apps Script
+            static async syncToGoogleScript(operation) {
+                try {
+                    const response = await fetch(DATABASE_CONFIG.endpoints[2], {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            action: operation.operation,
+                            type: operation.type,
+                            data: operation.data,
+                            timestamp: operation.timestamp
+                        })
+                    });
+
+                    const result = await response.json();
+                    return result.success === true;
+                } catch (error) {
+                    console.error('Google Script sync failed:', error);
+                    return false;
+                }
+            }
+
+            // Sync to generic REST API
+            static async syncToGenericAPI(endpoint, operation) {
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            operation: operation.operation,
+                            type: operation.type,
+                            data: operation.data,
+                            timestamp: operation.timestamp
+                        })
+                    });
+
+                    return response.ok;
+                } catch (error) {
+                    console.error('Generic API sync failed:', error);
+                    return false;
+                }
+            }
+
+            // Manual sync all data to database
+            static async syncAllToDatabase() {
+                try {
+                    showToast('Starting complete database sync...', 'info');
+
+                    // Queue all current data
+                    students.forEach(student => 
+                        this.queueOperation('create', { type: 'student', ...student })
+                    );
+                    
+                    transactions.forEach(transaction => 
+                        this.queueOperation('create', { type: 'transaction', ...transaction })
+                    );
+                    
+                    payments.forEach(payment => 
+                        this.queueOperation('create', { type: 'payment', ...payment })
+                    );
+
+                    // Process immediately
+                    await this.processPendingOperations();
+                } catch (error) {
+                    console.error('Failed to sync all to database:', error);
+                    showToast('Failed to sync all data to database', 'error');
+                }
+            }
+
+            // Get database sync status
+            static getSyncStatus() {
+                return {
+                    pending: this.pendingOperations.length,
+                    lastSync: lastDbSyncTime,
+                    isOnline: this.isOnline,
+                    syncInProgress: dbSyncInProgress,
+                    currentEndpoint: this.currentEndpoint
+                };
+            }
+
+            // Clear all pending operations
+            static clearPendingOperations() {
+                this.pendingOperations = [];
+                this.savePendingOperations();
+                showToast('Pending database operations cleared', 'info');
+            }
+        }
+
+        // Automatic Excel Integration Functions
+        class ExcelAutoSync {
+            static pendingData = {
+                students: [],
+                payments: [],
+                transactions: [],
+                statements: []
+            };
+
+            // Initialize auto-sync system
+            static init() {
+                try {
+                    this.loadPendingData();
+                    this.startAutoSync();
+                    console.log('✅ Excel Auto-Sync System Initialized');
+                } catch (error) {
+                    console.error('Failed to initialize Excel sync:', error);
+                }
+            }
+
+            // Load pending data from localStorage
+            static loadPendingData() {
+                try {
+                    const stored = localStorage.getItem('excelPendingData');
+                    if (stored) {
+                        this.pendingData = JSON.parse(stored);
+                    }
+                } catch (e) {
+                    console.warn('Failed to load pending data:', e);
+                    this.pendingData = {
+                        students: [],
+                        payments: [],
+                        transactions: [],
+                        statements: []
+                    };
+                }
+            }
+
+            // Save pending data to localStorage
+            static savePendingData() {
+                try {
+                    localStorage.setItem('excelPendingData', JSON.stringify(this.pendingData));
+                } catch (e) {
+                    console.warn('Failed to save pending data:', e);
+                }
+            }
+
+            // Add data to sync queue
+            static queueForSync(type, data) {
+                try {
+                    if (!this.pendingData[type]) {
+                        this.pendingData[type] = [];
+                    }
+                    
+                    // Add timestamp and unique ID
+                    const syncItem = {
+                        ...data,
+                        syncId: Date.now() + Math.random(),
+                        queuedAt: new Date().toISOString(),
+                        attempts: 0
+                    };
+                    
+                    this.pendingData[type].push(syncItem);
+                    this.savePendingData();
+                    
+                    console.log(`📋 Queued ${type} for Excel sync:`, syncItem);
+                    
+                    // Trigger immediate sync attempt
+                    setTimeout(() => this.attemptSync(), 1000);
+                } catch (error) {
+                    console.error('Failed to queue sync:', error);
+                }
+            }
+
+            // Start automatic sync interval
+            static startAutoSync() {
+                try {
+                    if (autoSyncInterval) {
+                        clearInterval(autoSyncInterval);
+                    }
+                    
+                    autoSyncInterval = setInterval(() => {
+                        if (autoSyncEnabled && !syncInProgress) {
+                            this.attemptSync();
+                        }
+                    }, EXCEL_CONFIG.syncInterval);
+                    
+                    console.log(`🔄 Auto-sync started (${EXCEL_CONFIG.syncInterval/1000}s interval)`);
+                } catch (error) {
+                    console.error('Failed to start auto-sync:', error);
+                }
+            }
+
+            // Attempt to sync pending data
+            static async attemptSync() {
+                if (syncInProgress || !autoSyncEnabled) return;
+                
+                try {
+                    const totalPending = Object.values(this.pendingData).reduce((sum, arr) => sum + arr.length, 0);
+                    if (totalPending === 0) return;
+                    
+                    syncInProgress = true;
+                    showSyncIndicator(`Syncing ${totalPending} items to Excel...`);
+                    
+                    // Generate comprehensive Excel data
+                    const excelData = this.generateExcelData();
+                    
+                    // Create downloadable Excel files
+                    await this.createExcelFiles(excelData);
+                    
+                    // Clear synced data
+                    this.clearSyncedData();
+                    
+                    // Update sync status
+                    lastSyncTime = new Date().toISOString();
+                    localStorage.setItem('lastSyncTime', lastSyncTime);
+                    
+                    showToast(`✅ ${totalPending} items synced to Excel successfully!`, 'success');
+                    updateConnectionStatus(true);
+                    
+                } catch (error) {
+                    console.error('Excel sync failed:', error);
+                    this.handleSyncFailure();
+                    showToast('Excel sync failed - will retry automatically', 'warning');
+                    updateConnectionStatus(false);
+                } finally {
+                    syncInProgress = false;
+                    hideSyncIndicator();
+                    updateSyncStatusDisplay();
+                }
+            }
+
+            // Generate comprehensive Excel data
+            static generateExcelData() {
+                try {
+                    const timestamp = new Date().toLocaleString('en-IN');
+                    
+                    // Combine current data with pending updates
+                    const allStudents = [...students];
+                    const allPayments = [...payments];
+                    const allTransactions = [...transactions];
+                    
+                    // Add pending data
+                    this.pendingData.students.forEach(student => {
+                        const existingIndex = allStudents.findIndex(s => s.id === student.id);
+                        if (existingIndex >= 0) {
+                            allStudents[existingIndex] = { ...allStudents[existingIndex], ...student };
+                        } else {
+                            allStudents.push(student);
+                        }
+                    });
+                    
+                    allPayments.push(...this.pendingData.payments);
+                    allTransactions.push(...this.pendingData.transactions);
+                    
+                    // Generate Excel sheets data
+                    return {
+                        students: this.formatStudentsForExcel(allStudents, timestamp),
+                        payments: this.formatPaymentsForExcel(allPayments, timestamp),
+                        transactions: this.formatTransactionsForExcel(allTransactions, timestamp),
+                        summary: this.generateFinancialSummary(allStudents, allPayments, allTransactions, timestamp),
+                        monthly: this.generateMonthlyStatements(allTransactions, allPayments, timestamp)
+                    };
+                } catch (error) {
+                    console.error('Failed to generate Excel data:', error);
+                    return { students: [], payments: [], transactions: [], summary: [], monthly: [] };
+                }
+            }
+
+            // Format students data for Excel
+            static formatStudentsForExcel(studentsData, timestamp) {
+                try {
+                    return studentsData.map(student => {
+                        const studentPayments = payments.filter(p => p.studentId === student.id);
+                        const totalPaid = studentPayments.reduce((sum, p) => sum + p.amount, 0);
+                        const totalDue = (student.monthlyFee * student.duration) - totalPaid;
+                        const paidMonths = Object.values(student.paymentStatus || {}).filter(s => s.paid).length;
+                        
+                        return {
+                            'Student ID': student.id,
+                            'Name': student.name,
+                            'Subject/Course': student.department,
+                            'Email': student.email,
+                            'Phone': student.phone || 'Not provided',
+                            'Monthly Fee (₹)': student.monthlyFee,
+                            'Duration (Months)': student.duration,
+                            'Total Course Fee (₹)': student.monthlyFee * student.duration,
+                            'Amount Paid (₹)': totalPaid,
+                            'Amount Due (₹)': Math.max(0, totalDue),
+                            'Months Paid': paidMonths,
+                            'Months Remaining': Math.max(0, student.duration - paidMonths),
+                            'Payment Status': totalDue <= 0 ? 'Completed' : 'Active',
+                            'Join Date': new Date(student.joinDate).toLocaleDateString('en-IN'),
+                            'Last Payment': studentPayments.length > 0 ? 
+                                new Date(Math.max(...studentPayments.map(p => new Date(p.date)))).toLocaleDateString('en-IN') : 'None',
+                            'Status': 'Active',
+                            'Last Updated': timestamp
+                        };
+                    });
+                } catch (error) {
+                    console.error('Failed to format students data:', error);
+                    return [];
+                }
+            }
+
+            // Format payments data for Excel
+            static formatPaymentsForExcel(paymentsData, timestamp) {
+                try {
+                    return paymentsData.map(payment => ({
+                        'Payment ID': payment.id,
+                        'Student ID': payment.studentId,
+                        'Student Name': payment.studentName,
+                        'Month': payment.monthName || payment.month,
+                        'Amount (₹)': payment.amount,
+                        'Payment Date': new Date(payment.date).toLocaleDateString('en-IN'),
+                        'Payment Method': payment.method || 'Cash',
+                        'Status': 'Paid',
+                        'Academic Year': this.getAcademicYear(payment.date),
+                        'Receipt Generated': new Date(payment.date).toLocaleString('en-IN'),
+                        'Sync Status': 'Synced',
+                        'Last Updated': timestamp
+                    }));
+                } catch (error) {
+                    console.error('Failed to format payments data:', error);
+                    return [];
+                }
+            }
+
+            // Format transactions data for Excel
+            static formatTransactionsForExcel(transactionsData, timestamp) {
+                try {
+                    return transactionsData.map(transaction => ({
+                        'Transaction ID': transaction.id,
+                        'Type': transaction.type.toUpperCase(),
+                        'Description': transaction.description,
+                        'Amount (₹)': transaction.amount,
+                        'Category': transaction.category,
+                        'Payment Method': transaction.method || 'Cash',
+                        'Date': new Date(transaction.date).toLocaleDateString('en-IN'),
+                        'Month': new Date(transaction.date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+                        'Academic Year': this.getAcademicYear(transaction.date),
+                        'Balance Impact': transaction.type === 'income' ? 'Positive' : 'Negative',
+                        'Sync Status': 'Synced',
+                        'Created': new Date(transaction.timestamp).toLocaleString('en-IN'),
+                        'Last Updated': timestamp
+                    }));
+                } catch (error) {
+                    console.error('Failed to format transactions data:', error);
+                    return [];
+                }
+            }
+
+            // Generate financial summary
+            static generateFinancialSummary(studentsData, paymentsData, transactionsData, timestamp) {
+                try {
+                    const totalIncome = transactionsData.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+                    const totalExpenses = transactionsData.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+                    const tuitionIncome = transactionsData.filter(t => t.type === 'income' && t.category === 'Tuition & Education').reduce((sum, t) => sum + t.amount, 0);
+                    const netBalance = totalIncome - totalExpenses;
+                    
+                    // Cash vs Online breakdown
+                    const cashIncome = transactionsData.filter(t => t.type === 'income' && t.method === 'Cash').reduce((sum, t) => sum + t.amount, 0);
+                    const onlineIncome = transactionsData.filter(t => t.type === 'income' && t.method !== 'Cash').reduce((sum, t) => sum + t.amount, 0);
+                    const cashExpenses = transactionsData.filter(t => t.type === 'expense' && t.method === 'Cash').reduce((sum, t) => sum + t.amount, 0);
+                    const onlineExpenses = transactionsData.filter(t => t.type === 'expense' && t.method !== 'Cash').reduce((sum, t) => sum + t.amount, 0);
+                    
+                    return [{
+                        'Report Type': 'Financial Summary',
+                        'Generated On': timestamp,
+                        'Total Students': studentsData.length,
+                        'Active Students': studentsData.filter(s => {
+                            const hasRecentPayment = paymentsData.some(p => p.studentId === s.id);
+                            return hasRecentPayment;
+                        }).length,
+                        'Total Income (₹)': totalIncome,
+                        'Tuition Income (₹)': tuitionIncome,
+                        'Other Income (₹)': totalIncome - tuitionIncome,
+                        'Total Expenses (₹)': totalExpenses,
+                        'Net Balance (₹)': netBalance,
+                        'Cash Income (₹)': cashIncome,
+                        'Online Income (₹)': onlineIncome,
+                        'Cash Expenses (₹)': cashExpenses,
+                        'Online Expenses (₹)': onlineExpenses,
+                        'Cash Balance (₹)': cashIncome - cashExpenses,
+                        'Online Balance (₹)': onlineIncome - onlineExpenses,
+                        'Total Payments': paymentsData.length,
+                        'Average Payment (₹)': paymentsData.length > 0 ? Math.round(tuitionIncome / paymentsData.length) : 0,
+                        'Profit Margin (%)': totalIncome > 0 ? Math.round((netBalance / totalIncome) * 100) : 0,
+                        'Status': 'Auto-Generated'
+                    }];
+                } catch (error) {
+                    console.error('Failed to generate financial summary:', error);
+                    return [];
+                }
+            }
+
+            // Generate monthly statements
+            static generateMonthlyStatements(transactionsData, paymentsData, timestamp) {
+                try {
+                    const monthlyData = {};
+                    
+                    // Process last 12 months
+                    for (let i = 0; i < 12; i++) {
+                        const date = new Date();
+                        date.setMonth(date.getMonth() - i);
+                        const monthKey = date.toISOString().slice(0, 7);
+                        const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                        
+                        const monthTransactions = transactionsData.filter(t => t.date.startsWith(monthKey));
+                        const monthPayments = paymentsData.filter(p => p.date.startsWith(monthKey));
+                        
+                        if (monthTransactions.length > 0 || monthPayments.length > 0) {
+                            const income = monthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+                            const expenses = monthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+                            const tuitionIncome = monthPayments.reduce((sum, p) => sum + p.amount, 0);
+                            
+                            monthlyData[monthKey] = {
+                                'Month': monthName,
+                                'Month Code': monthKey,
+                                'Total Income (₹)': income,
+                                'Tuition Income (₹)': tuitionIncome,
+                                'Other Income (₹)': income - tuitionIncome,
+                                'Total Expenses (₹)': expenses,
+                                'Net Profit (₹)': income - expenses,
+                                'Payments Received': monthPayments.length,
+                                'Transactions': monthTransactions.length,
+                                'Generated': timestamp
+                            };
+                        }
+                    }
+                    
+                    return Object.values(monthlyData);
+                } catch (error) {
+                    console.error('Failed to generate monthly statements:', error);
+                    return [];
+                }
+            }
+
+            // Get academic year from date
+            static getAcademicYear(dateString) {
+                try {
+                    const date = new Date(dateString);
+                    const year = date.getFullYear();
+                    const month = date.getMonth();
+                    
+                    // Academic year starts in April (month 3)
+                    if (month >= 3) {
+                        return `${year}-${year + 1}`;
+                    } else {
+                        return `${year - 1}-${year}`;
+                    }
+                } catch (error) {
+                    console.error('Failed to get academic year:', error);
+                    return '2024-2025';
+                }
+            }
+
+            // Create and download Excel files
+            static async createExcelFiles(excelData) {
+                try {
+                    const timestamp = new Date().toISOString().split('T')[0];
+                    
+                    // Create CSV files for each sheet
+                    if (excelData.students.length > 0) {
+                        const studentsCSV = this.convertToCSV(excelData.students);
+                        this.downloadCSV(studentsCSV, `Students-${timestamp}.csv`);
+                    }
+                    
+                    if (excelData.payments.length > 0) {
+                        const paymentsCSV = this.convertToCSV(excelData.payments);
+                        this.downloadCSV(paymentsCSV, `Payments-${timestamp}.csv`);
+                    }
+                    
+                    if (excelData.transactions.length > 0) {
+                        const transactionsCSV = this.convertToCSV(excelData.transactions);
+                        this.downloadCSV(transactionsCSV, `Transactions-${timestamp}.csv`);
+                    }
+                    
+                    if (excelData.summary.length > 0) {
+                        const summaryCSV = this.convertToCSV(excelData.summary);
+                        this.downloadCSV(summaryCSV, `Financial-Summary-${timestamp}.csv`);
+                    }
+                    
+                    if (excelData.monthly.length > 0) {
+                        const monthlyCSV = this.convertToCSV(excelData.monthly);
+                        this.downloadCSV(monthlyCSV, `Monthly-Statements-${timestamp}.csv`);
+                    }
+                    
+                    // Open Excel file for manual import
+                    setTimeout(() => {
+                        window.open(EXCEL_DIRECT_LINK, '_blank');
+                    }, 1000);
+                } catch (error) {
+                    console.error('Failed to create Excel files:', error);
+                    throw error;
+                }
+            }
+
+            // Convert data to CSV format
+            static convertToCSV(data) {
+                try {
+                    if (!data || data.length === 0) return '';
+                    
+                    const headers = Object.keys(data[0]);
+                    const csvContent = [
+                        headers.join(','),
+                        ...data.map(row => 
+                            headers.map(header => {
+                                const value = row[header] || '';
+                                // Escape quotes and wrap in quotes if contains comma
+                                return `"${String(value).replace(/"/g, '""')}"`;
+                            }).join(',')
+                        )
+                    ].join('\n');
+                    
+                    return csvContent;
+                } catch (error) {
+                    console.error('Failed to convert to CSV:', error);
+                    return '';
+                }
+            }
+
+            // Download CSV file
+            static downloadCSV(csvContent, filename) {
+                try {
+                    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                    const link = document.createElement('a');
+                    const url = URL.createObjectURL(blob);
+                    link.setAttribute('href', url);
+                    link.setAttribute('download', filename);
+                    link.style.visibility = 'hidden';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                } catch (error) {
+                    console.error('Failed to download CSV:', error);
+                }
+            }
+
+            // Clear synced data
+            static clearSyncedData() {
+                try {
+                    this.pendingData = {
+                        students: [],
+                        payments: [],
+                        transactions: [],
+                        statements: []
+                    };
+                    this.savePendingData();
+                } catch (error) {
+                    console.error('Failed to clear synced data:', error);
+                }
+            }
+
+            // Handle sync failure
+            static handleSyncFailure() {
+                try {
+                    // Increment attempt count for all pending items
+                    Object.values(this.pendingData).forEach(items => {
+                        items.forEach(item => {
+                            item.attempts = (item.attempts || 0) + 1;
+                            item.lastAttempt = new Date().toISOString();
+                        });
+                    });
+                    
+                    // Remove items that have exceeded max retries
+                    Object.keys(this.pendingData).forEach(type => {
+                        this.pendingData[type] = this.pendingData[type].filter(item => 
+                            item.attempts < EXCEL_CONFIG.maxRetries
+                        );
+                    });
+                    
+                    this.savePendingData();
+                } catch (error) {
+                    console.error('Failed to handle sync failure:', error);
+                }
+            }
+
+            // Manual sync all data
+            static async syncAllData() {
+                try {
+                    showToast('Starting complete Excel sync...', 'info');
+                    
+                    // Queue all current data for sync
+                    students.forEach(student => this.queueForSync('students', student));
+                    payments.forEach(payment => this.queueForSync('payments', payment));
+                    transactions.forEach(transaction => this.queueForSync('transactions', transaction));
+                    
+                    // Trigger sync
+                    await this.attemptSync();
+                } catch (error) {
+                    console.error('Failed to sync all data:', error);
+                    showToast('Failed to sync all data', 'error');
+                }
+            }
+
+            // Process pending syncs
+            static async processPendingSync() {
+                try {
+                    const totalPending = Object.values(this.pendingData).reduce((sum, arr) => sum + arr.length, 0);
+                    
+                    if (totalPending === 0) {
+                        showToast('No pending syncs found', 'info');
+                        return;
+                    }
+                    
+                    showToast(`Processing ${totalPending} pending syncs...`, 'info');
+                    await this.attemptSync();
+                } catch (error) {
+                    console.error('Failed to process pending sync:', error);
+                    showToast('Failed to process pending syncs', 'error');
+                }
+            }
+
+            // Get sync status
+            static getSyncStatus() {
+                try {
+                    const totalPending = Object.values(this.pendingData).reduce((sum, arr) => sum + arr.length, 0);
+                    return {
+                        pending: totalPending,
+                        lastSync: lastSyncTime,
+                        autoSyncEnabled: autoSyncEnabled,
+                        syncInProgress: syncInProgress
+                    };
+                } catch (error) {
+                    console.error('Failed to get sync status:', error);
+                    return {
+                        pending: 0,
+                        lastSync: null,
+                        autoSyncEnabled: false,
+                        syncInProgress: false
+                    };
+                }
+            }
+        }
+
+        // Data storage
+        let students = JSON.parse(localStorage.getItem('finance_students')) || [];
+        let transactions = JSON.parse(localStorage.getItem('finance_transactions')) || [];
+        let payments = JSON.parse(localStorage.getItem('finance_payments')) || [];
+        let nextStudentId = parseInt(localStorage.getItem('nextStudentId')) || 1;
+        let nextTransactionId = parseInt(localStorage.getItem('nextTransactionId')) || 1;
+        let nextPaymentId = parseInt(localStorage.getItem('nextPaymentId')) || 1;
+
+        // UI Helper Functions
+        function showSyncIndicator(message) {
+            try {
+                const indicator = document.getElementById('syncIndicator');
+                const status = document.getElementById('syncStatus');
+                if (indicator && status) {
+                    status.textContent = message;
+                    indicator.classList.remove('hidden');
+                    indicator.classList.add('syncing');
+                }
+            } catch (error) {
+                console.error('Failed to show sync indicator:', error);
+            }
+        }
+
+        function hideSyncIndicator() {
+            try {
+                const indicator = document.getElementById('syncIndicator');
+                if (indicator) {
+                    indicator.classList.add('hidden');
+                    indicator.classList.remove('syncing');
+                }
+            } catch (error) {
+                console.error('Failed to hide sync indicator:', error);
+            }
+        }
+
+        function updateConnectionStatus(isOnline) {
+            try {
+                const statusElement = document.getElementById('connectionStatus');
+                const backendStatus = document.getElementById('backendStatus');
+                
+                if (statusElement) {
+                    if (isOnline) {
+                        statusElement.innerHTML = '<i class="fas fa-wifi mr-1"></i>Online';
+                        statusElement.className = 'ml-2 px-2 py-1 bg-green-500 bg-opacity-30 rounded-full text-xs';
+                    } else {
+                        statusElement.innerHTML = '<i class="fas fa-wifi-slash mr-1"></i>Offline';
+                        statusElement.className = 'ml-2 px-2 py-1 bg-orange-500 bg-opacity-30 rounded-full text-xs';
+                    }
+                }
+                
+                if (backendStatus) {
+                    if (isOnline) {
+                        backendStatus.innerHTML = '<i class="fas fa-check-circle mr-1"></i>Active';
+                        backendStatus.className = 'text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full';
+                    } else {
+                        backendStatus.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i>Offline';
+                        backendStatus.className = 'text-xs px-2 py-1 bg-orange-100 text-orange-800 rounded-full';
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to update connection status:', error);
+            }
+        }
+
+        // FAB Menu Toggle
+        function toggleFAB() {
+            try {
+                const menu = document.getElementById('fabMenu');
+                const icon = document.querySelector('#fabMain i');
+                
+                if (menu && icon) {
+                    if (menu.classList.contains('hidden')) {
+                        menu.classList.remove('hidden');
+                        icon.classList.remove('fa-plus');
+                        icon.classList.add('fa-times');
+                    } else {
+                        menu.classList.add('hidden');
+                        icon.classList.remove('fa-times');
+                        icon.classList.add('fa-plus');
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to toggle FAB:', error);
+            }
+        }
+
+        // Tab management
+        function showTab(tabName) {
+            try {
+                // Hide FAB menu
+                const fabMenu = document.getElementById('fabMenu');
+                const fabIcon = document.querySelector('#fabMain i');
+                if (fabMenu) fabMenu.classList.add('hidden');
+                if (fabIcon) {
+                    fabIcon.classList.remove('fa-times');
+                    fabIcon.classList.add('fa-plus');
+                }
+                
+                // Hide all tab contents
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.remove('active', 'bg-blue-600', 'text-white');
+                    btn.classList.add('text-gray-600');
+                });
+                
+                // Show selected tab content
+                const tabContent = document.getElementById(tabName + 'Content');
+                if (tabContent) {
+                    tabContent.classList.remove('hidden');
+                }
+                
+                // Add active class to selected tab
+                const activeTab = document.getElementById(tabName + 'Tab');
+                if (activeTab) {
+                    activeTab.classList.add('active', 'bg-blue-600', 'text-white');
+                    activeTab.classList.remove('text-gray-600');
+                }
+                
+                // Update content based on tab
+                if (tabName === 'dashboard') {
+                    displayDashboard();
+                } else if (tabName === 'tuition') {
+                    displayStudents();
+                } else if (tabName === 'transactions') {
+                    displayTransactions();
+                } else if (tabName === 'analytics') {
+                    displayAnalytics();
+                }
+            } catch (error) {
+                console.error('Failed to show tab:', error);
+            }
+        }
+
+        // Modal Management
+        function showAddIncomeModal() {
+            try {
+                const modal = document.getElementById('incomeModal');
+                const dateInput = document.getElementById('incomeDate');
+                
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+                
+                if (dateInput) {
+                    dateInput.value = new Date().toISOString().split('T')[0];
+                }
+            } catch (error) {
+                console.error('Failed to show income modal:', error);
+            }
+        }
+
+        function closeIncomeModal() {
+            try {
+                const modal = document.getElementById('incomeModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            } catch (error) {
+                console.error('Failed to close income modal:', error);
+            }
+        }
+
+        function showAddExpenseModal() {
+            try {
+                const modal = document.getElementById('expenseModal');
+                const dateInput = document.getElementById('expenseDate');
+                
+                if (modal) {
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+                
+                if (dateInput) {
+                    dateInput.value = new Date().toISOString().split('T')[0];
+                }
+            } catch (error) {
+                console.error('Failed to show expense modal:', error);
+            }
+        }
+
+        function closeExpenseModal() {
+            try {
+                const modal = document.getElementById('expenseModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            } catch (error) {
+                console.error('Failed to close expense modal:', error);
+            }
+        }
+
+        // Add Income with automatic Excel sync
+        document.getElementById('incomeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const description = document.getElementById('incomeDescription').value.trim();
+            const amount = parseFloat(document.getElementById('incomeAmount').value);
+            const category = document.getElementById('incomeCategory').value;
+            const method = document.getElementById('incomeMethod').value;
+            const date = document.getElementById('incomeDate').value;
+            
+            if (!description || !amount || !category || !method || !date) {
+                showToast('Please fill all fields', 'error');
+                return;
+            }
+            
+            const transaction = {
+                id: nextTransactionId++,
+                type: 'income',
+                description: description,
+                amount: amount,
+                category: category,
+                method: method,
+                date: date,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Save locally
+            transactions.push(transaction);
+            saveData();
+            updateStats();
+            displayDashboard();
+            displayTransactions();
+            
+            // Queue for Excel sync
+            ExcelAutoSync.queueForSync('transactions', transaction);
+            
+            // Queue for database sync
+            DatabaseSync.queueOperation('create', { type: 'transaction', ...transaction });
+            
+            // Reset form and close modal
+            document.getElementById('incomeForm').reset();
+            closeIncomeModal();
+            
+            showToast('Income added! Auto-syncing to Excel...', 'success');
+        });
+
+        // Add Expense with automatic Excel sync
+        document.getElementById('expenseForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const description = document.getElementById('expenseDescription').value.trim();
+            const amount = parseFloat(document.getElementById('expenseAmount').value);
+            const category = document.getElementById('expenseCategory').value;
+            const method = document.getElementById('expenseMethod').value;
+            const date = document.getElementById('expenseDate').value;
+            
+            if (!description || !amount || !category || !method || !date) {
+                showToast('Please fill all fields', 'error');
+                return;
+            }
+            
+            const transaction = {
+                id: nextTransactionId++,
+                type: 'expense',
+                description: description,
+                amount: amount,
+                category: category,
+                method: method,
+                date: date,
+                timestamp: new Date().toISOString()
+            };
+            
+            // Save locally
+            transactions.push(transaction);
+            saveData();
+            updateStats();
+            displayDashboard();
+            displayTransactions();
+            
+            // Queue for Excel sync
+            ExcelAutoSync.queueForSync('transactions', transaction);
+            
+            // Queue for database sync
+            DatabaseSync.queueOperation('create', { type: 'transaction', ...transaction });
+            
+            // Reset form and close modal
+            document.getElementById('expenseForm').reset();
+            closeExpenseModal();
+            
+            showToast('Expense added! Auto-syncing to Excel...', 'success');
+        });
+
+        // Add student with automatic Excel sync
+        document.getElementById('studentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('studentName').value.trim();
+            const department = document.getElementById('studentDepartment').value;
+            const duration = parseInt(document.getElementById('courseDuration').value);
+            const monthlyFee = parseFloat(document.getElementById('monthlyFee').value);
+            const email = document.getElementById('studentEmail').value.trim();
+            const phone = document.getElementById('studentPhone').value.trim();
+            
+            if (!name || !department || !duration || !monthlyFee || !email) {
+                showToast('Please fill all required fields', 'error');
+                return;
+            }
+            
+            if (monthlyFee <= 0) {
+                showToast('Monthly fee must be greater than 0', 'error');
+                return;
+            }
+            
+            // Check if student name already exists
+            if (students.some(s => s.name.toLowerCase() === name.toLowerCase())) {
+                showToast('A student with this name already exists!', 'error');
+                return;
+            }
+            
+            const student = {
+                id: nextStudentId++,
+                name: name,
+                department: department,
+                duration: duration,
+                monthlyFee: monthlyFee,
+                email: email,
+                phone: phone,
+                joinDate: new Date().toISOString(),
+                paymentStatus: generatePaymentStatus(duration)
+            };
+            
+            // Save locally
+            students.push(student);
+            saveData();
+            displayStudents();
+            updateStats();
+            
+            // Queue for Excel sync
+            ExcelAutoSync.queueForSync('students', student);
+            
+            // Queue for database sync
+            DatabaseSync.queueOperation('create', { type: 'student', ...student });
+            
+            // Reset form
+            document.getElementById('studentForm').reset();
+            
+            showToast('Student added! Auto-syncing to Excel...', 'success');
+        });
+
+        // Generate payment status for duration
+        function generatePaymentStatus(duration) {
+            const status = {};
+            const currentDate = new Date();
+            
+            for (let i = 0; i < duration; i++) {
+                const monthDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + i, 1);
+                const monthKey = monthDate.toISOString().slice(0, 7);
+                const monthName = monthDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                
+                status[monthKey] = {
+                    monthName: monthName,
+                    paid: false,
+                    paidDate: null,
+                    amount: 0
+                };
+            }
+            
+            return status;
+        }
+
+        // Display students
+        function displayStudents() {
+            const container = document.getElementById('studentsList');
+            
+            if (students.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-users text-4xl mb-2 block opacity-50"></i>
+                        <p>No students added yet</p>
+                        <p class="text-sm">Tap the + button to add your first student</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = students.map(student => {
+                const currentMonth = new Date().toISOString().slice(0, 7);
+                const currentMonthStatus = student.paymentStatus[currentMonth];
+                const isPaid = currentMonthStatus ? currentMonthStatus.paid : false;
+                
+                // Calculate payment progress
+                const totalMonths = Object.keys(student.paymentStatus).length;
+                const paidMonths = Object.values(student.paymentStatus).filter(status => status.paid).length;
+                const progressPercent = (paidMonths / totalMonths) * 100;
+                
+                return `
+                    <div class="bg-white rounded-2xl p-4 card-shadow">
+                        <div class="flex items-start justify-between mb-3">
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-800">${student.name}</h4>
+                                <p class="text-sm text-gray-600">${student.department}</p>
+                                <p class="text-xs text-gray-500">₹${student.monthlyFee}/month</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="px-2 py-1 rounded-full text-xs font-medium ${isPaid ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'}">
+                                    ${isPaid ? 'Paid' : 'Pending'}
+                                </span>
+                                <button onclick="showPaymentModal(${student.id})" class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-credit-card"></i>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="flex justify-between text-xs text-gray-600 mb-1">
+                                <span>Payment Progress</span>
+                                <span>${paidMonths}/${totalMonths} months</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                                <div class="progress-bar h-3 rounded-full transition-all duration-500" style="width: ${progressPercent}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <button onclick="markPayment(${student.id}, '${currentMonth}')" class="flex-1 mr-2 py-2 px-3 rounded-xl text-sm font-medium transition-all ${isPaid ? 'bg-gray-100 text-gray-600' : 'bg-green-600 text-white hover:bg-green-700'}">
+                                ${isPaid ? 'Paid ✓' : 'Mark Paid'}
+                            </button>
+                            <button onclick="deleteStudent(${student.id})" class="text-red-600 hover:text-red-800 p-2">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Show payment modal
+        function showPaymentModal(studentId) {
+            try {
+                const student = students.find(s => s.id === studentId);
+                if (!student) return;
+                
+                const modal = document.getElementById('paymentModal');
+                const content = document.getElementById('paymentModalContent');
+                
+                if (!modal || !content) return;
+                
+                content.innerHTML = `
+                    <div class="mb-4">
+                        <h4 class="font-semibold text-gray-800">${student.name}</h4>
+                        <p class="text-sm text-gray-600">${student.department}</p>
+                    </div>
+                    
+                    <div class="space-y-2 max-h-60 overflow-y-auto">
+                        ${Object.entries(student.paymentStatus).map(([monthKey, monthData]) => `
+                            <div class="p-3 rounded-xl ${monthData.paid ? 'bg-green-50 border border-green-200' : 'bg-gray-50'}">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div>
+                                        <div class="font-medium text-sm">${monthData.monthName}</div>
+                                        <div class="text-xs text-gray-600">₹${student.monthlyFee}</div>
+                                        ${monthData.paid ? `<div class="text-xs text-green-600 flex items-center mt-1">
+                                            <i class="fas fa-${monthData.method === 'Cash' ? 'wallet' : 'credit-card'} mr-1"></i>
+                                            ${monthData.method || 'Cash'}
+                                        </div>` : ''}
+                                    </div>
+                                    <label class="flex items-center cursor-pointer">
+                                        <input type="checkbox" 
+                                               ${monthData.paid ? 'checked' : ''} 
+                                               onchange="togglePaymentStatus(${student.id}, '${monthKey}')"
+                                               class="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500">
+                                    </label>
+                                </div>
+                                
+                                ${!monthData.paid ? `
+                                    <div class="mt-2 pt-2 border-t border-gray-200">
+                                        <label class="block text-xs font-medium text-gray-700 mb-1">Payment Method:</label>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <button onclick="markPaymentWithMethod(${student.id}, '${monthKey}', 'Cash')" 
+                                                    class="flex items-center justify-center py-2 px-3 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-all text-xs font-medium">
+                                                <i class="fas fa-wallet mr-1"></i>Cash
+                                            </button>
+                                            <button onclick="markPaymentWithMethod(${student.id}, '${monthKey}', 'Online')" 
+                                                    class="flex items-center justify-center py-2 px-3 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-all text-xs font-medium">
+                                                <i class="fas fa-credit-card mr-1"></i>Online
+                                            </button>
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } catch (error) {
+                console.error('Failed to show payment modal:', error);
+            }
+        }
+
+        // Close payment modal
+        function closePaymentModal() {
+            try {
+                const modal = document.getElementById('paymentModal');
+                if (modal) {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+            } catch (error) {
+                console.error('Failed to close payment modal:', error);
+            }
+        }
+
+        // Mark payment with specific method and automatic Excel sync
+        async function markPaymentWithMethod(studentId, monthKey, method) {
+            try {
+                const student = students.find(s => s.id === studentId);
+                if (!student) return;
+                
+                const monthData = student.paymentStatus[monthKey];
+                if (!monthData) return;
+                
+                // Mark as paid with method
+                monthData.paid = true;
+                monthData.paidDate = new Date().toISOString();
+                monthData.amount = student.monthlyFee;
+                monthData.method = method;
+                
+                // Create payment record
+                const payment = {
+                    id: nextPaymentId++,
+                    studentId: student.id,
+                    studentName: student.name,
+                    month: monthKey,
+                    monthName: monthData.monthName,
+                    amount: student.monthlyFee,
+                    date: new Date().toISOString(),
+                    method: method
+                };
+                
+                payments.push(payment);
+                
+                // Add to tuition income
+                const tuitionTransaction = {
+                    id: nextTransactionId++,
+                    type: 'income',
+                    description: `Tuition payment from ${student.name} (${method})`,
+                    amount: student.monthlyFee,
+                    category: 'Tuition & Education',
+                    method: method,
+                    date: new Date().toISOString().split('T')[0],
+                    timestamp: new Date().toISOString()
+                };
+                
+                transactions.push(tuitionTransaction);
+                
+                // Save locally
+                saveData();
+                displayStudents();
+                displayTransactions();
+                displayDashboard();
+                updateStats();
+                
+                // Queue for Excel sync
+                ExcelAutoSync.queueForSync('payments', payment);
+                ExcelAutoSync.queueForSync('transactions', tuitionTransaction);
+                ExcelAutoSync.queueForSync('students', student); // Update student status
+                
+                // Queue for database sync
+                DatabaseSync.queueOperation('create', { type: 'payment', ...payment });
+                DatabaseSync.queueOperation('create', { type: 'transaction', ...tuitionTransaction });
+                DatabaseSync.queueOperation('update', { type: 'student', ...student });
+                
+                // Send payment confirmation email
+                sendPaymentConfirmation(student, monthData);
+                
+                // Refresh the payment modal to show updated status
+                showPaymentModal(studentId);
+                
+                showToast(`${method} payment recorded! Auto-syncing to Excel...`, 'success');
+            } catch (error) {
+                console.error('Failed to mark payment:', error);
+                showToast('Failed to record payment', 'error');
+            }
+        }
+
+        // Toggle payment status (for checkbox)
+        function togglePaymentStatus(studentId, monthKey) {
+            try {
+                const student = students.find(s => s.id === studentId);
+                if (!student) return;
+                
+                const monthData = student.paymentStatus[monthKey];
+                if (!monthData) return;
+                
+                if (monthData.paid) {
+                    // Unmark payment
+                    monthData.paid = false;
+                    monthData.paidDate = null;
+                    monthData.amount = 0;
+                    monthData.method = null;
+                    
+                    // Remove payment record
+                    payments = payments.filter(p => !(p.studentId === studentId && p.month === monthKey));
+                    
+                    // Remove corresponding transaction
+                    transactions = transactions.filter(t => !(
+                        t.type === 'income' && 
+                        t.category === 'Tuition & Education' && 
+                        t.description.includes(student.name) &&
+                        t.amount === student.monthlyFee
+                    ));
+                    
+                    showToast(`Payment unmarked for ${student.name}`, 'info');
+                }
+                
+                saveData();
+                displayStudents();
+                displayTransactions();
+                displayDashboard();
+                updateStats();
+                
+                // Refresh the payment modal
+                showPaymentModal(studentId);
+            } catch (error) {
+                console.error('Failed to toggle payment status:', error);
+                showToast('Failed to update payment status', 'error');
+            }
+        }
+
+        // Legacy function for backward compatibility
+        function markPayment(studentId, monthKey) {
+            try {
+                markPaymentWithMethod(studentId, monthKey, 'Cash');
+            } catch (error) {
+                console.error('Failed to mark payment:', error);
+                showToast('Failed to mark payment', 'error');
+            }
+        }
+
+        // Display Dashboard
+        function displayDashboard() {
+            displayRecentTransactions();
+            updateStats();
+        }
+
+        // Display Recent Transactions
+        function displayRecentTransactions() {
+            const container = document.getElementById('recentTransactions');
+            const recentTransactions = [...transactions].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 5);
+            
+            if (recentTransactions.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4 text-gray-500">
+                        <p class="text-sm">No recent transactions</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = recentTransactions.map(transaction => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                    <div class="flex items-center">
+                        <div class="w-8 h-8 rounded-full flex items-center justify-center ${transaction.type === 'income' ? 'bg-green-100' : 'bg-red-100'}">
+                            <i class="fas fa-${transaction.type === 'income' ? 'arrow-up text-green-600' : 'arrow-down text-red-600'} text-xs"></i>
+                        </div>
+                        <div class="ml-3">
+                            <div class="font-medium text-sm">${transaction.description}</div>
+                            <div class="text-xs text-gray-600">${transaction.category}</div>
+                            <div class="text-xs text-gray-500">${transaction.method || 'Cash'} ${transaction.method === 'Cash' ? '💵' : '💳'}</div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="font-bold ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}">
+                            ${transaction.type === 'income' ? '+' : '-'}₹${transaction.amount}
+                        </div>
+                        <div class="text-xs text-gray-500">${new Date(transaction.date).toLocaleDateString()}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Display Transactions
+        function displayTransactions() {
+            const container = document.getElementById('transactionsList');
+            
+            if (transactions.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-exchange-alt text-4xl mb-2 block opacity-50"></i>
+                        <p>No transactions recorded yet</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort transactions by date (newest first)
+            const sortedTransactions = [...transactions].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            container.innerHTML = sortedTransactions.map(transaction => `
+                <div class="bg-white rounded-2xl p-4 card-shadow">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 rounded-full flex items-center justify-center ${transaction.type === 'income' ? 'bg-green-100' : 'bg-red-100'}">
+                                <i class="fas fa-${transaction.type === 'income' ? 'arrow-up text-green-600' : 'arrow-down text-red-600'}"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h4 class="font-semibold text-gray-800">${transaction.description}</h4>
+                                <p class="text-sm text-gray-600">${transaction.category}</p>
+                                <div class="flex items-center space-x-2 text-xs text-gray-500">
+                                    <span>${new Date(transaction.date).toLocaleDateString()}</span>
+                                    <span>•</span>
+                                    <span class="flex items-center">
+                                        ${transaction.method || 'Cash'} ${transaction.method === 'Cash' ? '💵' : '💳'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-bold ${transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}">
+                                ${transaction.type === 'income' ? '+' : '-'}₹${transaction.amount}
+                            </div>
+                            <button onclick="deleteTransaction(${transaction.id})" class="text-red-600 hover:text-red-800 text-sm mt-1">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Send payment confirmation email
+        function sendPaymentConfirmation(student, monthData) {
+            if (!student.email) {
+                console.log('No email provided for student:', student.name);
+                return;
+            }
+
+            const templateParams = {
+                to_email: student.email,
+                student_name: student.name,
+                subject: student.department,
+                month: monthData.monthName,
+                amount: student.monthlyFee,
+                payment_date: new Date().toLocaleDateString('en-IN'),
+                tutor_name: 'Sayandip Bera'
+            };
+
+            emailjs.send('service_02jt4up', 'template_p8gqo2d', templateParams)
+                .then(function(response) {
+                    console.log('Payment confirmation sent successfully!', response);
+                    showToast('Payment confirmation sent to student', 'success');
+                })
+                .catch(function(error) {
+                    console.error('Email sending failed:', error);
+                    showToast('Payment recorded but email failed to send', 'warning');
+                });
+        }
+
+        // Display analytics
+        function displayAnalytics() {
+            updateStats();
+            
+            // Category wise expense stats
+            const expenseCategories = {};
+            transactions.filter(t => t.type === 'expense').forEach(transaction => {
+                if (!expenseCategories[transaction.category]) {
+                    expenseCategories[transaction.category] = 0;
+                }
+                expenseCategories[transaction.category] += transaction.amount;
+            });
+            
+            const categoryContainer = document.getElementById('categoryStats');
+            if (Object.keys(expenseCategories).length === 0) {
+                categoryContainer.innerHTML = '<p class="text-gray-500 text-sm">No expense categories yet</p>';
+            } else {
+                categoryContainer.innerHTML = Object.entries(expenseCategories).map(([category, amount]) => `
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
+                        <div>
+                            <div class="font-medium text-sm">${category}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-bold text-red-600">₹${amount}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Update statistics
+        function updateStats() {
+            const currentMonth = new Date().toISOString().slice(0, 7);
+            
+            // Calculate totals
+            const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            const netBalance = totalIncome - totalExpenses;
+            const tuitionIncome = transactions.filter(t => t.type === 'income' && (t.category === 'Tuition' || t.category === 'Tuition & Education')).reduce((sum, t) => sum + t.amount, 0);
+            const totalSavings = Math.max(0, netBalance);
+            
+            // Calculate cash vs online balances
+            const cashIncome = transactions.filter(t => t.type === 'income' && t.method === 'Cash').reduce((sum, t) => sum + t.amount, 0);
+            const cashExpenses = transactions.filter(t => t.type === 'expense' && t.method === 'Cash').reduce((sum, t) => sum + t.amount, 0);
+            const cashBalance = cashIncome - cashExpenses;
+            
+            const onlineIncome = transactions.filter(t => t.type === 'income' && t.method !== 'Cash').reduce((sum, t) => sum + t.amount, 0);
+            const onlineExpenses = transactions.filter(t => t.type === 'expense' && t.method !== 'Cash').reduce((sum, t) => sum + t.amount, 0);
+            const onlineBalance = onlineIncome - onlineExpenses;
+            
+            // Monthly calculations
+            const monthlyIncomeTransactions = transactions.filter(t => t.type === 'income' && t.date.startsWith(currentMonth));
+            const monthlyExpenseTransactions = transactions.filter(t => t.type === 'expense' && t.date.startsWith(currentMonth));
+            const monthlyIncome = monthlyIncomeTransactions.reduce((sum, t) => sum + t.amount, 0);
+            const monthlyExpenses = monthlyExpenseTransactions.reduce((sum, t) => sum + t.amount, 0);
+            const monthlyNet = monthlyIncome - monthlyExpenses;
+            
+            // Update header
+            document.getElementById('netBalance').textContent = `₹${netBalance}`;
+            
+            // Update dashboard cards
+            document.getElementById('totalIncome').textContent = `₹${totalIncome}`;
+            document.getElementById('totalExpenses').textContent = `₹${totalExpenses}`;
+            document.getElementById('tuitionIncome').textContent = `₹${tuitionIncome}`;
+            document.getElementById('totalSavings').textContent = `₹${totalSavings}`;
+            
+            // Update cash and online balances
+            const cashBalanceEl = document.getElementById('cashBalance');
+            const onlineBalanceEl = document.getElementById('onlineBalance');
+            
+            cashBalanceEl.textContent = `₹${cashBalance}`;
+            onlineBalanceEl.textContent = `₹${onlineBalance}`;
+            
+            // Color code negative balances
+            cashBalanceEl.style.color = cashBalance < 0 ? '#ef4444' : 'white';
+            onlineBalanceEl.style.color = onlineBalance < 0 ? '#ef4444' : 'white';
+            
+            // Update monthly summary
+            document.getElementById('monthlyIncome').textContent = `₹${monthlyIncome}`;
+            document.getElementById('monthlyExpenses').textContent = `₹${monthlyExpenses}`;
+            document.getElementById('monthlyNet').textContent = `₹${monthlyNet}`;
+            
+            // Update analytics
+            document.getElementById('totalIncomeAnalytics').textContent = `₹${totalIncome}`;
+            document.getElementById('totalExpensesAnalytics').textContent = `₹${totalExpenses}`;
+            document.getElementById('totalStudentsAnalytics').textContent = students.length;
+            document.getElementById('tuitionIncomeAnalytics').textContent = `₹${tuitionIncome}`;
+        }
+
+        // Delete student with automatic Excel sync
+        async function deleteStudent(studentId) {
+            try {
+                if (confirm('Are you sure you want to delete this student and all their payment records?')) {
+                    const student = students.find(s => s.id === studentId);
+                    
+                    // Remove locally
+                    students = students.filter(s => s.id !== studentId);
+                    payments = payments.filter(p => p.studentId !== studentId);
+                    
+                    // Remove related transactions
+                    transactions = transactions.filter(t => 
+                        !(t.description && t.description.includes(student?.name))
+                    );
+                    
+                    saveData();
+                    displayStudents();
+                    updateStats();
+                    
+                    // Queue deletion for Excel sync (mark as deleted)
+                    if (student) {
+                        ExcelAutoSync.queueForSync('students', { 
+                            ...student, 
+                            status: 'DELETED',
+                            deletedAt: new Date().toISOString() 
+                        });
+                        
+                        // Queue for database sync
+                        DatabaseSync.queueOperation('delete', { type: 'student', ...student });
+                    }
+                    
+                    showToast('Student deleted! Auto-syncing to Excel...', 'success');
+                }
+            } catch (error) {
+                console.error('Failed to delete student:', error);
+                showToast('Failed to delete student', 'error');
+            }
+        }
+
+        // Delete transaction
+        function deleteTransaction(transactionId) {
+            try {
+                if (confirm('Are you sure you want to delete this transaction?')) {
+                    transactions = transactions.filter(t => t.id !== transactionId);
+                    saveData();
+                    displayTransactions();
+                    displayDashboard();
+                    updateStats();
+                    showToast('Transaction deleted successfully', 'success');
+                }
+            } catch (error) {
+                console.error('Failed to delete transaction:', error);
+                showToast('Failed to delete transaction', 'error');
+            }
+        }
+
+        // Export to Excel using automatic sync system
+        function exportToExcel() {
+            try {
+                showToast('Preparing Excel export...', 'info');
+                
+                // Queue all data for immediate sync
+                students.forEach(student => ExcelAutoSync.queueForSync('students', student));
+                payments.forEach(payment => ExcelAutoSync.queueForSync('payments', payment));
+                transactions.forEach(transaction => ExcelAutoSync.queueForSync('transactions', transaction));
+                
+                // Trigger immediate sync
+                ExcelAutoSync.attemptSync();
+                
+                showToast('Excel export initiated! Files will download automatically.', 'success');
+            } catch (error) {
+                console.error('Failed to export to Excel:', error);
+                showToast('Failed to export to Excel', 'error');
+            }
+        }
+
+        // Backup data
+        function backupData() {
+            try {
+                const backupData = {
+                    students: students,
+                    transactions: transactions,
+                    payments: payments,
+                    exportDate: new Date().toISOString()
+                };
+                
+                const dataStr = JSON.stringify(backupData, null, 2);
+                const dataBlob = new Blob([dataStr], {type: 'application/json'});
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `finance-backup-${new Date().toISOString().split('T')[0]}.json`;
+                link.click();
+                URL.revokeObjectURL(url);
+                
+                showToast('Backup downloaded successfully!', 'success');
+            } catch (error) {
+                console.error('Failed to backup data:', error);
+                showToast('Failed to backup data', 'error');
+            }
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('finance_students', JSON.stringify(students));
+            localStorage.setItem('finance_transactions', JSON.stringify(transactions));
+            localStorage.setItem('finance_payments', JSON.stringify(payments));
+            localStorage.setItem('nextStudentId', nextStudentId.toString());
+            localStorage.setItem('nextTransactionId', nextTransactionId.toString());
+            localStorage.setItem('nextPaymentId', nextPaymentId.toString());
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.createElement('div');
+            const colors = {
+                success: 'bg-green-600',
+                error: 'bg-red-600',
+                info: 'bg-blue-600',
+                warning: 'bg-orange-600'
+            };
+            
+            toast.className = `${colors[type]} text-white px-4 py-3 rounded-xl shadow-lg slide-up`;
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-${type === 'success' ? 'check' : type === 'error' ? 'exclamation' : 'info'}-circle mr-2"></i>
+                    <span class="text-sm">${message}</span>
+                </div>
+            `;
+            
+            document.getElementById('toastContainer').appendChild(toast);
+            
+            setTimeout(() => {
+                toast.remove();
+            }, 3000);
+        }
+
+        // Initialize application with auto-sync system
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize UI
+            showTab('dashboard');
+            updateStats();
+            updateSyncStatus();
+            updateConnectionStatus(true);
+            
+            // Initialize Excel Auto-Sync System
+            ExcelAutoSync.init();
+            
+            // Initialize Database Sync System
+            DatabaseSync.init();
+            
+            // Setup auto-sync toggle
+            const autoSyncToggle = document.getElementById('autoSyncToggle');
+            if (autoSyncToggle) {
+                autoSyncToggle.checked = autoSyncEnabled;
+                autoSyncToggle.addEventListener('change', function() {
+                    autoSyncEnabled = this.checked;
+                    localStorage.setItem('autoSyncEnabled', autoSyncEnabled.toString());
+                    
+                    if (autoSyncEnabled) {
+                        ExcelAutoSync.startAutoSync();
+                        showToast('✅ Auto-sync enabled - Excel integration active!', 'success');
+                    } else {
+                        if (autoSyncInterval) {
+                            clearInterval(autoSyncInterval);
+                        }
+                        showToast('⏸️ Auto-sync disabled', 'info');
+                    }
+                    updateSyncStatus();
+                });
+            }
+
+            // Check for pending syncs on load
+            const excelSyncStatus = ExcelAutoSync.getSyncStatus();
+            const dbSyncStatus = DatabaseSync.getSyncStatus();
+            const totalPending = excelSyncStatus.pending + dbSyncStatus.pending;
+            
+            if (totalPending > 0) {
+                showToast(`📋 ${totalPending} items queued for sync (${excelSyncStatus.pending} Excel, ${dbSyncStatus.pending} DB)`, 'info');
+            }
+            
+            // Show welcome message
+            setTimeout(() => {
+                showToast('🚀 Excel & Database Auto-Sync Ready!', 'success');
+            }, 1000);
+        });
+        
+        // Update sync status display
+        function updateSyncStatus() {
+            updateSyncStatusDisplay();
+        }
+
+        // Handle mobile back button for modal
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closePaymentModal();
+            }
+        });
+
+        // Enhanced sync status display
+        function updateSyncStatusDisplay() {
+            const excelStatus = ExcelAutoSync.getSyncStatus();
+            const dbStatus = DatabaseSync.getSyncStatus();
+            
+            // Update main sync status
+            const statusElement = document.getElementById('lastSyncStatus');
+            if (statusElement) {
+                let statusText = '';
+                const totalPending = excelStatus.pending + dbStatus.pending;
+                
+                if (totalPending > 0) {
+                    statusText = `${totalPending} items pending sync`;
+                } else if (excelStatus.lastSync || dbStatus.lastSync) {
+                    const lastSync = new Date(Math.max(
+                        new Date(excelStatus.lastSync || 0),
+                        new Date(dbStatus.lastSync || 0)
+                    ));
+                    const now = new Date();
+                    const diffMinutes = Math.floor((now - lastSync) / (1000 * 60));
+                    
+                    if (diffMinutes < 1) {
+                        statusText = 'Last sync: Just now';
+                    } else if (diffMinutes < 60) {
+                        statusText = `Last sync: ${diffMinutes} minutes ago`;
+                    } else if (diffMinutes < 1440) {
+                        const hours = Math.floor(diffMinutes / 60);
+                        statusText = `Last sync: ${hours} hour${hours > 1 ? 's' : ''} ago`;
+                    } else {
+                        statusText = `Last sync: ${lastSync.toLocaleDateString('en-IN')}`;
+                    }
+                } else {
+                    statusText = 'No sync performed yet';
+                }
+                
+                statusElement.textContent = statusText;
+            }
+            
+            // Update queue counts
+            const excelQueueElement = document.getElementById('excelQueueCount');
+            const dbQueueElement = document.getElementById('dbQueueCount');
+            
+            if (excelQueueElement) {
+                excelQueueElement.textContent = `${excelStatus.pending} pending`;
+            }
+            
+            if (dbQueueElement) {
+                dbQueueElement.textContent = `${dbStatus.pending} pending`;
+                dbQueueElement.className = dbStatus.isOnline ? 'text-indigo-600' : 'text-orange-600';
+            }
+            
+            // Update connection status based on database connectivity
+            updateConnectionStatus(dbStatus.isOnline);
+        }
+        
+        // Update sync status every 30 seconds
+        setInterval(updateSyncStatusDisplay, 30000);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97447f96271533a2',t:'MTc1NjA1NTc5Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
