@@ -273,35 +273,9 @@
             background-size: 200% 100%;
             animation: shimmer 1.5s infinite;
         }
-
-        /* Sync Status Indicator */
-        .sync-indicator {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            z-index: 60;
-            transition: all 0.3s ease;
-        }
-        
-        .sync-indicator.syncing {
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen mobile-safe">
-    <!-- Sync Status Indicator -->
-    <div id="syncIndicator" class="sync-indicator hidden">
-        <div class="bg-blue-600 text-white px-3 py-2 rounded-lg shadow-lg text-xs font-medium flex items-center">
-            <i class="fas fa-sync-alt mr-2"></i>
-            <span id="syncStatus">Syncing...</span>
-        </div>
-    </div>
-
     <!-- Header -->
     <div class="gradient-bg text-white p-6 sticky top-0 z-40">
         <div class="flex items-center justify-between">
@@ -316,9 +290,6 @@
                     <p class="text-sm opacity-90 flex items-center">
                         <i class="fas fa-code mr-1"></i>
                         Built by Sayandip Bera
-                        <span id="connectionStatus" class="ml-2 px-2 py-1 bg-green-500 bg-opacity-30 rounded-full text-xs">
-                            <i class="fas fa-wifi mr-1"></i>Online
-                        </span>
                     </p>
                 </div>
             </div>
@@ -556,14 +527,14 @@
                     
                     <select id="studentDepartment" class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent">
                         <option value="">Select Subject/Course</option>
-                        <option value="Mathematics">Mathematics</option>
-                        <option value="Physics">Physics</option>
-                        <option value="Chemistry">Chemistry</option>
-                        <option value="Biology">Biology</option>
-                        <option value="English">English</option>
-                        <option value="Computer Science">Computer Science</option>
-                        <option value="Economics">Economics</option>
-                        <option value="Accounting">Accounting</option>
+                        <option value="CSE">CSE</option>
+                        <option value="ECE">ECE</option>
+                        <option value="IT">IT</option>
+                        <option value="AIML">AIML</option>
+                        <option value="BCA">BCA</option>
+                        <option value="Computer Science">BSC</option>
+                        <option value="COMA">COMA</option>
+                        <option value="COMS">COMS</option>
                     </select>
                     
                     <div class="grid grid-cols-2 gap-3">
@@ -679,49 +650,15 @@
                         <i class="fas fa-download mr-2"></i>Backup
                     </button>
                 </div>
+                <button onclick="syncToOneDrive()" class="w-full bg-purple-600 text-white py-3 px-4 rounded-xl font-medium hover:bg-purple-700 transition-all">
+                    <i class="fas fa-cloud-upload-alt mr-2"></i>Sync to OneDrive Excel
+                </button>
                 
-                <div class="grid grid-cols-1 gap-3 mb-3">
-                    <button onclick="testJSONBinConnection()" class="w-full bg-green-600 text-white py-3 px-4 rounded-xl font-medium hover:bg-green-700 transition-all">
-                        <i class="fas fa-plug mr-2"></i>Test JSONBin Connection
-                    </button>
-                    <button onclick="ExcelAutoSync.syncAllData()" class="w-full bg-purple-600 text-white py-3 px-4 rounded-xl font-medium hover:bg-purple-700 transition-all">
-                        <i class="fas fa-cloud-upload-alt mr-2"></i>Complete Cloud Sync
-                    </button>
-                    <button onclick="DatabaseSync.syncAllToDatabase()" class="w-full bg-indigo-600 text-white py-3 px-4 rounded-xl font-medium hover:bg-indigo-700 transition-all">
-                        <i class="fas fa-database mr-2"></i>Sync to Database
-                    </button>
-                </div>
-                
-                <div class="grid grid-cols-2 gap-3 mb-3">
-                    <button onclick="ExcelAutoSync.processPendingSync()" class="bg-orange-600 text-white py-3 px-4 rounded-xl font-medium hover:bg-orange-700 transition-all">
-                        <i class="fas fa-sync mr-2"></i>Cloud Queue
-                    </button>
-                    <button onclick="DatabaseSync.processPendingOperations()" class="bg-teal-600 text-white py-3 px-4 rounded-xl font-medium hover:bg-teal-700 transition-all">
-                        <i class="fas fa-server mr-2"></i>DB Queue
-                    </button>
-                </div>
-                
-                <!-- Backend Status -->
-                <div class="mt-3 p-3 bg-blue-50 rounded-xl">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-sm font-medium text-blue-800">Backend Integration</span>
-                        <span id="backendStatus" class="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">
-                            <i class="fas fa-check-circle mr-1"></i>Active
-                        </span>
-                    </div>
-                    <div class="text-xs text-blue-700 mb-2">
+                <!-- Quick Sync Info -->
+                <div class="mt-3 p-2 bg-blue-50 rounded-lg">
+                    <div class="text-xs text-blue-700">
                         <i class="fas fa-info-circle mr-1"></i>
-                        All data automatically syncs to cloud and backend database
-                    </div>
-                    <div class="grid grid-cols-2 gap-2 text-xs">
-                        <div class="bg-white p-2 rounded">
-                            <div class="font-medium text-gray-700">Cloud Queue</div>
-                            <div id="excelQueueCount" class="text-blue-600">0 pending</div>
-                        </div>
-                        <div class="bg-white p-2 rounded">
-                            <div class="font-medium text-gray-700">DB Queue</div>
-                            <div id="dbQueueCount" class="text-indigo-600">0 pending</div>
-                        </div>
+                        Excel will auto-open for manual data entry. Check console for formatted data.
                     </div>
                 </div>
             </div>
@@ -876,1015 +813,14 @@
         // Initialize EmailJS
         emailjs.init("L1AI7irStUJjtnowQ");
 
-        // Excel OneDrive Integration - Your Specific Excel File
-        const EXCEL_DIRECT_LINK = "https://1drv.ms/x/c/E819039567B5C791/EfEN5Afz6qREiuwvVPYOzQYBr8djCU7MYtLKnGamnOT0gw?e=Jn5rHS";
-        
-        // Backend Database Configuration
-        const DATABASE_CONFIG = {
-            // Multiple backend options for redundancy
-            endpoints: [
-                'https://api.jsonbin.io/v3/b/67598b8ead19ca34f8d4b7b8', // Your JSONBin.io endpoint
-                'https://api.sheety.co/your-sheet-id/finance-tracker', // Sheety (optional)
-                'https://script.google.com/macros/s/your-script-id/exec' // Google Apps Script (optional)
-            ],
-            apiKeys: {
-                jsonbin: '$2a$10$pa7Yi6AkUklK8A5y0I21M.P/NpTvsyzVb.C0/yLuEE.51zoUmVh3S', // Your Master Key
-                sheety: 'Bearer your-sheety-token'
-            },
-            retryAttempts: 3,
-            retryDelay: 2000,
-            syncInterval: 60000 // 1 minute
-        };
+        // Excel OneDrive Integration - Updated with your new link
+        const EXCEL_FILE_ID = "E819039567B5C791!105";
+        const EXCEL_API_BASE = "https://graph.microsoft.com/v1.0/me/drive/items/";
+        const EXCEL_DIRECT_LINK = "https://1drv.ms/x/c/E819039567B5C791/EVfD5RAfwHRHp0tINfk-sasBIOnLvqzJ6ovC56pwkCJQyQ?e=QV2u78&nav=MTVfe0E3OTUxRkRELUZBNUMtNDk2OC1CQjVELUI5MTNENzUyRUIxMH0";
         
         // Auto-sync settings
         let autoSyncEnabled = localStorage.getItem('autoSyncEnabled') !== 'false';
         let lastSyncTime = localStorage.getItem('lastSyncTime') || null;
-        let lastDbSyncTime = localStorage.getItem('lastDbSyncTime') || null;
-        let syncInProgress = false;
-        let dbSyncInProgress = false;
-        let autoSyncInterval = null;
-        let dbSyncInterval = null;
-
-        // Excel Auto-Sync Configuration
-        const EXCEL_CONFIG = {
-            enabled: true,
-            syncInterval: 30000, // 30 seconds
-            maxRetries: 3,
-            retryDelay: 5000 // 5 seconds
-        };
-
-        // Backend Database Integration System
-        class DatabaseSync {
-            static pendingOperations = [];
-            static isOnline = navigator.onLine;
-            static currentEndpoint = 0;
-
-            // Initialize database sync system
-            static init() {
-                try {
-                    this.loadPendingOperations();
-                    this.startDatabaseSync();
-                    this.setupNetworkMonitoring();
-                    console.log('✅ Database Sync System Initialized');
-                } catch (error) {
-                    console.error('Failed to initialize database sync:', error);
-                }
-            }
-
-            // Setup network monitoring
-            static setupNetworkMonitoring() {
-                window.addEventListener('online', () => {
-                    this.isOnline = true;
-                    updateConnectionStatus(true);
-                    showToast('🌐 Back online - resuming database sync', 'success');
-                    this.processPendingOperations();
-                });
-
-                window.addEventListener('offline', () => {
-                    this.isOnline = false;
-                    updateConnectionStatus(false);
-                    showToast('📱 Offline mode - data will sync when reconnected', 'warning');
-                });
-            }
-
-            // Load pending operations from localStorage
-            static loadPendingOperations() {
-                try {
-                    const stored = localStorage.getItem('dbPendingOperations');
-                    if (stored) {
-                        this.pendingOperations = JSON.parse(stored);
-                    }
-                } catch (e) {
-                    console.warn('Failed to load pending operations:', e);
-                    this.pendingOperations = [];
-                }
-            }
-
-            // Save pending operations to localStorage
-            static savePendingOperations() {
-                try {
-                    localStorage.setItem('dbPendingOperations', JSON.stringify(this.pendingOperations));
-                } catch (e) {
-                    console.warn('Failed to save pending operations:', e);
-                }
-            }
-
-            // Queue operation for database sync
-            static queueOperation(operation, data) {
-                try {
-                    const dbOperation = {
-                        id: Date.now() + Math.random(),
-                        operation: operation, // 'create', 'update', 'delete'
-                        type: data.type || 'unknown', // 'student', 'transaction', 'payment'
-                        data: data,
-                        timestamp: new Date().toISOString(),
-                        attempts: 0,
-                        maxAttempts: DATABASE_CONFIG.retryAttempts
-                    };
-
-                    this.pendingOperations.push(dbOperation);
-                    this.savePendingOperations();
-
-                    console.log(`📋 Queued ${operation} operation for ${data.type}:`, dbOperation);
-
-                    // Attempt immediate sync if online
-                    if (this.isOnline && !dbSyncInProgress) {
-                        setTimeout(() => this.processPendingOperations(), 1000);
-                    }
-                } catch (error) {
-                    console.error('Failed to queue database operation:', error);
-                }
-            }
-
-            // Start automatic database sync
-            static startDatabaseSync() {
-                try {
-                    if (dbSyncInterval) {
-                        clearInterval(dbSyncInterval);
-                    }
-
-                    dbSyncInterval = setInterval(() => {
-                        if (this.isOnline && !dbSyncInProgress && this.pendingOperations.length > 0) {
-                            this.processPendingOperations();
-                        }
-                    }, DATABASE_CONFIG.syncInterval);
-
-                    console.log(`🔄 Database sync started (${DATABASE_CONFIG.syncInterval/1000}s interval)`);
-                } catch (error) {
-                    console.error('Failed to start database sync:', error);
-                }
-            }
-
-            // Process pending database operations
-            static async processPendingOperations() {
-                if (dbSyncInProgress || !this.isOnline || this.pendingOperations.length === 0) {
-                    return;
-                }
-
-                try {
-                    dbSyncInProgress = true;
-                    showSyncIndicator(`Syncing ${this.pendingOperations.length} items to database...`);
-
-                    const successfulOperations = [];
-                    const failedOperations = [];
-
-                    // Process operations in batches
-                    for (const operation of this.pendingOperations) {
-                        try {
-                            const success = await this.executeOperation(operation);
-                            if (success) {
-                                successfulOperations.push(operation);
-                            } else {
-                                operation.attempts++;
-                                if (operation.attempts >= operation.maxAttempts) {
-                                    failedOperations.push(operation);
-                                }
-                            }
-                        } catch (error) {
-                            console.error('Operation failed:', error);
-                            operation.attempts++;
-                            if (operation.attempts >= operation.maxAttempts) {
-                                failedOperations.push(operation);
-                            }
-                        }
-
-                        // Small delay between operations
-                        await new Promise(resolve => setTimeout(resolve, 100));
-                    }
-
-                    // Remove successful operations
-                    this.pendingOperations = this.pendingOperations.filter(op => 
-                        !successfulOperations.includes(op)
-                    );
-
-                    // Remove permanently failed operations
-                    this.pendingOperations = this.pendingOperations.filter(op => 
-                        !failedOperations.includes(op)
-                    );
-
-                    this.savePendingOperations();
-
-                    // Update sync time
-                    lastDbSyncTime = new Date().toISOString();
-                    localStorage.setItem('lastDbSyncTime', lastDbSyncTime);
-
-                    if (successfulOperations.length > 0) {
-                        showToast(`✅ ${successfulOperations.length} items synced to database!`, 'success');
-                    }
-
-                    if (failedOperations.length > 0) {
-                        showToast(`⚠️ ${failedOperations.length} items failed to sync`, 'warning');
-                    }
-
-                } catch (error) {
-                    console.error('Database sync failed:', error);
-                    showToast('Database sync encountered errors', 'error');
-                } finally {
-                    dbSyncInProgress = false;
-                    hideSyncIndicator();
-                    updateSyncStatusDisplay();
-                }
-            }
-
-            // Execute individual database operation
-            static async executeOperation(operation) {
-                try {
-                    const endpoint = DATABASE_CONFIG.endpoints[this.currentEndpoint];
-                    
-                    // Try different endpoints if current fails
-                    for (let i = 0; i < DATABASE_CONFIG.endpoints.length; i++) {
-                        try {
-                            const result = await this.sendToEndpoint(
-                                DATABASE_CONFIG.endpoints[this.currentEndpoint], 
-                                operation
-                            );
-                            
-                            if (result) {
-                                return true;
-                            }
-                        } catch (error) {
-                            console.warn(`Endpoint ${this.currentEndpoint} failed:`, error);
-                            this.currentEndpoint = (this.currentEndpoint + 1) % DATABASE_CONFIG.endpoints.length;
-                        }
-                    }
-
-                    return false;
-                } catch (error) {
-                    console.error('Failed to execute operation:', error);
-                    return false;
-                }
-            }
-
-            // Send data to specific endpoint
-            static async sendToEndpoint(endpoint, operation) {
-                try {
-                    // JSONBin.io integration
-                    if (endpoint.includes('jsonbin.io')) {
-                        return await this.syncToJSONBin(operation);
-                    }
-                    
-                    // Sheety integration
-                    if (endpoint.includes('sheety.co')) {
-                        return await this.syncToSheety(operation);
-                    }
-                    
-                    // Google Apps Script integration
-                    if (endpoint.includes('script.google.com')) {
-                        return await this.syncToGoogleScript(operation);
-                    }
-
-                    // Generic REST API
-                    return await this.syncToGenericAPI(endpoint, operation);
-                } catch (error) {
-                    console.error('Endpoint sync failed:', error);
-                    return false;
-                }
-            }
-
-            // Sync to JSONBin.io
-            static async syncToJSONBin(operation) {
-                try {
-                    // Get current data with comprehensive structure
-                    const currentData = {
-                        metadata: {
-                            lastUpdated: new Date().toISOString(),
-                            version: '2.0',
-                            totalStudents: students.length,
-                            totalTransactions: transactions.length,
-                            totalPayments: payments.length,
-                            operation: operation
-                        },
-                        students: students.map(student => ({
-                            ...student,
-                            totalPaid: payments.filter(p => p.studentId === student.id).reduce((sum, p) => sum + p.amount, 0),
-                            lastPayment: payments.filter(p => p.studentId === student.id).sort((a, b) => new Date(b.date) - new Date(a.date))[0]?.date || null
-                        })),
-                        transactions: transactions.map(transaction => ({
-                            ...transaction,
-                            formattedDate: new Date(transaction.date).toLocaleDateString('en-IN'),
-                            monthYear: new Date(transaction.date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-                        })),
-                        payments: payments.map(payment => ({
-                            ...payment,
-                            formattedDate: new Date(payment.date).toLocaleDateString('en-IN'),
-                            studentDetails: students.find(s => s.id === payment.studentId)
-                        })),
-                        summary: {
-                            totalIncome: transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0),
-                            totalExpenses: transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0),
-                            tuitionIncome: transactions.filter(t => t.type === 'income' && t.category === 'Tuition & Education').reduce((sum, t) => sum + t.amount, 0),
-                            netBalance: transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0) - transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0),
-                            activeStudents: students.filter(s => payments.some(p => p.studentId === s.id)).length
-                        }
-                    };
-
-                    console.log('📤 Syncing to JSONBin.io:', {
-                        students: currentData.students.length,
-                        transactions: currentData.transactions.length,
-                        payments: currentData.payments.length,
-                        summary: currentData.summary
-                    });
-
-                    const response = await fetch(DATABASE_CONFIG.endpoints[0], {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-Master-Key': DATABASE_CONFIG.apiKeys.jsonbin,
-                            'X-Bin-Versioning': 'false'
-                        },
-                        body: JSON.stringify(currentData)
-                    });
-
-                    if (response.ok) {
-                        const result = await response.json();
-                        console.log('✅ JSONBin.io sync successful:', result);
-                        return true;
-                    } else {
-                        const errorText = await response.text();
-                        console.error('❌ JSONBin.io sync failed:', response.status, errorText);
-                        return false;
-                    }
-                } catch (error) {
-                    console.error('❌ JSONBin sync error:', error);
-                    return false;
-                }
-            }
-
-            // Sync to Sheety
-            static async syncToSheety(operation) {
-                try {
-                    let endpoint = DATABASE_CONFIG.endpoints[1];
-                    let method = 'POST';
-                    let body = {};
-
-                    // Determine endpoint and data based on operation
-                    if (operation.type === 'student') {
-                        endpoint += '/students';
-                        body = {
-                            student: {
-                                id: operation.data.id,
-                                name: operation.data.name,
-                                department: operation.data.department,
-                                monthlyFee: operation.data.monthlyFee,
-                                email: operation.data.email,
-                                phone: operation.data.phone || '',
-                                joinDate: operation.data.joinDate
-                            }
-                        };
-                    } else if (operation.type === 'transaction') {
-                        endpoint += '/transactions';
-                        body = {
-                            transaction: {
-                                id: operation.data.id,
-                                type: operation.data.type,
-                                description: operation.data.description,
-                                amount: operation.data.amount,
-                                category: operation.data.category,
-                                method: operation.data.method,
-                                date: operation.data.date
-                            }
-                        };
-                    } else if (operation.type === 'payment') {
-                        endpoint += '/payments';
-                        body = {
-                            payment: {
-                                id: operation.data.id,
-                                studentId: operation.data.studentId,
-                                studentName: operation.data.studentName,
-                                amount: operation.data.amount,
-                                month: operation.data.month,
-                                date: operation.data.date,
-                                method: operation.data.method
-                            }
-                        };
-                    }
-
-                    const response = await fetch(endpoint, {
-                        method: method,
-                        headers: {
-                            'Authorization': DATABASE_CONFIG.apiKeys.sheety,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(body)
-                    });
-
-                    return response.ok;
-                } catch (error) {
-                    console.error('Sheety sync failed:', error);
-                    return false;
-                }
-            }
-
-            // Sync to Google Apps Script
-            static async syncToGoogleScript(operation) {
-                try {
-                    const response = await fetch(DATABASE_CONFIG.endpoints[2], {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            action: operation.operation,
-                            type: operation.type,
-                            data: operation.data,
-                            timestamp: operation.timestamp
-                        })
-                    });
-
-                    const result = await response.json();
-                    return result.success === true;
-                } catch (error) {
-                    console.error('Google Script sync failed:', error);
-                    return false;
-                }
-            }
-
-            // Sync to generic REST API
-            static async syncToGenericAPI(endpoint, operation) {
-                try {
-                    const response = await fetch(endpoint, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            operation: operation.operation,
-                            type: operation.type,
-                            data: operation.data,
-                            timestamp: operation.timestamp
-                        })
-                    });
-
-                    return response.ok;
-                } catch (error) {
-                    console.error('Generic API sync failed:', error);
-                    return false;
-                }
-            }
-
-            // Manual sync all data to database
-            static async syncAllToDatabase() {
-                try {
-                    showToast('Starting complete database sync...', 'info');
-
-                    // Queue all current data
-                    students.forEach(student => 
-                        this.queueOperation('create', { type: 'student', ...student })
-                    );
-                    
-                    transactions.forEach(transaction => 
-                        this.queueOperation('create', { type: 'transaction', ...transaction })
-                    );
-                    
-                    payments.forEach(payment => 
-                        this.queueOperation('create', { type: 'payment', ...payment })
-                    );
-
-                    // Process immediately
-                    await this.processPendingOperations();
-                } catch (error) {
-                    console.error('Failed to sync all to database:', error);
-                    showToast('Failed to sync all data to database', 'error');
-                }
-            }
-
-            // Get database sync status
-            static getSyncStatus() {
-                return {
-                    pending: this.pendingOperations.length,
-                    lastSync: lastDbSyncTime,
-                    isOnline: this.isOnline,
-                    syncInProgress: dbSyncInProgress,
-                    currentEndpoint: this.currentEndpoint
-                };
-            }
-
-            // Clear all pending operations
-            static clearPendingOperations() {
-                this.pendingOperations = [];
-                this.savePendingOperations();
-                showToast('Pending database operations cleared', 'info');
-            }
-        }
-
-        // Automatic Excel Integration Functions
-        class ExcelAutoSync {
-            static pendingData = {
-                students: [],
-                payments: [],
-                transactions: [],
-                statements: []
-            };
-
-            // Initialize auto-sync system
-            static init() {
-                try {
-                    this.loadPendingData();
-                    this.startAutoSync();
-                    console.log('✅ Excel Auto-Sync System Initialized');
-                } catch (error) {
-                    console.error('Failed to initialize Excel sync:', error);
-                }
-            }
-
-            // Load pending data from localStorage
-            static loadPendingData() {
-                try {
-                    const stored = localStorage.getItem('excelPendingData');
-                    if (stored) {
-                        this.pendingData = JSON.parse(stored);
-                    }
-                } catch (e) {
-                    console.warn('Failed to load pending data:', e);
-                    this.pendingData = {
-                        students: [],
-                        payments: [],
-                        transactions: [],
-                        statements: []
-                    };
-                }
-            }
-
-            // Save pending data to localStorage
-            static savePendingData() {
-                try {
-                    localStorage.setItem('excelPendingData', JSON.stringify(this.pendingData));
-                } catch (e) {
-                    console.warn('Failed to save pending data:', e);
-                }
-            }
-
-            // Add data to sync queue
-            static queueForSync(type, data) {
-                try {
-                    if (!this.pendingData[type]) {
-                        this.pendingData[type] = [];
-                    }
-                    
-                    // Add timestamp and unique ID
-                    const syncItem = {
-                        ...data,
-                        syncId: Date.now() + Math.random(),
-                        queuedAt: new Date().toISOString(),
-                        attempts: 0
-                    };
-                    
-                    this.pendingData[type].push(syncItem);
-                    this.savePendingData();
-                    
-                    console.log(`📋 Queued ${type} for Excel sync:`, syncItem);
-                    
-                    // Trigger immediate sync attempt
-                    setTimeout(() => this.attemptSync(), 1000);
-                } catch (error) {
-                    console.error('Failed to queue sync:', error);
-                }
-            }
-
-            // Start automatic sync interval
-            static startAutoSync() {
-                try {
-                    if (autoSyncInterval) {
-                        clearInterval(autoSyncInterval);
-                    }
-                    
-                    autoSyncInterval = setInterval(() => {
-                        if (autoSyncEnabled && !syncInProgress) {
-                            this.attemptSync();
-                        }
-                    }, EXCEL_CONFIG.syncInterval);
-                    
-                    console.log(`🔄 Auto-sync started (${EXCEL_CONFIG.syncInterval/1000}s interval)`);
-                } catch (error) {
-                    console.error('Failed to start auto-sync:', error);
-                }
-            }
-
-            // Attempt to sync pending data
-            static async attemptSync() {
-                if (syncInProgress || !autoSyncEnabled) return;
-                
-                try {
-                    const totalPending = Object.values(this.pendingData).reduce((sum, arr) => sum + arr.length, 0);
-                    if (totalPending === 0) return;
-                    
-                    syncInProgress = true;
-                    showSyncIndicator(`Syncing ${totalPending} items to Excel...`);
-                    
-                    // Generate comprehensive Excel data
-                    const excelData = this.generateExcelData();
-                    
-                    // Create downloadable Excel files
-                    await this.createExcelFiles(excelData);
-                    
-                    // Clear synced data
-                    this.clearSyncedData();
-                    
-                    // Update sync status
-                    lastSyncTime = new Date().toISOString();
-                    localStorage.setItem('lastSyncTime', lastSyncTime);
-                    
-                    showToast(`✅ ${totalPending} items synced to cloud successfully!`, 'success');
-                    updateConnectionStatus(true);
-                    
-                } catch (error) {
-                    console.error('Excel sync failed:', error);
-                    this.handleSyncFailure();
-                    showToast('Cloud sync failed - will retry automatically', 'warning');
-                    updateConnectionStatus(false);
-                } finally {
-                    syncInProgress = false;
-                    hideSyncIndicator();
-                    updateSyncStatusDisplay();
-                }
-            }
-
-            // Generate comprehensive Excel data
-            static generateExcelData() {
-                try {
-                    const timestamp = new Date().toLocaleString('en-IN');
-                    
-                    // Combine current data with pending updates
-                    const allStudents = [...students];
-                    const allPayments = [...payments];
-                    const allTransactions = [...transactions];
-                    
-                    // Add pending data
-                    this.pendingData.students.forEach(student => {
-                        const existingIndex = allStudents.findIndex(s => s.id === student.id);
-                        if (existingIndex >= 0) {
-                            allStudents[existingIndex] = { ...allStudents[existingIndex], ...student };
-                        } else {
-                            allStudents.push(student);
-                        }
-                    });
-                    
-                    allPayments.push(...this.pendingData.payments);
-                    allTransactions.push(...this.pendingData.transactions);
-                    
-                    // Generate Excel sheets data
-                    return {
-                        students: this.formatStudentsForExcel(allStudents, timestamp),
-                        payments: this.formatPaymentsForExcel(allPayments, timestamp),
-                        transactions: this.formatTransactionsForExcel(allTransactions, timestamp),
-                        summary: this.generateFinancialSummary(allStudents, allPayments, allTransactions, timestamp),
-                        monthly: this.generateMonthlyStatements(allTransactions, allPayments, timestamp)
-                    };
-                } catch (error) {
-                    console.error('Failed to generate Excel data:', error);
-                    return { students: [], payments: [], transactions: [], summary: [], monthly: [] };
-                }
-            }
-
-            // Format students data for Excel
-            static formatStudentsForExcel(studentsData, timestamp) {
-                try {
-                    return studentsData.map(student => {
-                        const studentPayments = payments.filter(p => p.studentId === student.id);
-                        const totalPaid = studentPayments.reduce((sum, p) => sum + p.amount, 0);
-                        const totalDue = (student.monthlyFee * student.duration) - totalPaid;
-                        const paidMonths = Object.values(student.paymentStatus || {}).filter(s => s.paid).length;
-                        
-                        return {
-                            'Student ID': student.id,
-                            'Name': student.name,
-                            'Subject/Course': student.department,
-                            'Email': student.email,
-                            'Phone': student.phone || 'Not provided',
-                            'Monthly Fee (₹)': student.monthlyFee,
-                            'Duration (Months)': student.duration,
-                            'Total Course Fee (₹)': student.monthlyFee * student.duration,
-                            'Amount Paid (₹)': totalPaid,
-                            'Amount Due (₹)': Math.max(0, totalDue),
-                            'Months Paid': paidMonths,
-                            'Months Remaining': Math.max(0, student.duration - paidMonths),
-                            'Payment Status': totalDue <= 0 ? 'Completed' : 'Active',
-                            'Join Date': new Date(student.joinDate).toLocaleDateString('en-IN'),
-                            'Last Payment': studentPayments.length > 0 ? 
-                                new Date(Math.max(...studentPayments.map(p => new Date(p.date)))).toLocaleDateString('en-IN') : 'None',
-                            'Status': 'Active',
-                            'Last Updated': timestamp
-                        };
-                    });
-                } catch (error) {
-                    console.error('Failed to format students data:', error);
-                    return [];
-                }
-            }
-
-            // Format payments data for Excel
-            static formatPaymentsForExcel(paymentsData, timestamp) {
-                try {
-                    return paymentsData.map(payment => ({
-                        'Payment ID': payment.id,
-                        'Student ID': payment.studentId,
-                        'Student Name': payment.studentName,
-                        'Month': payment.monthName || payment.month,
-                        'Amount (₹)': payment.amount,
-                        'Payment Date': new Date(payment.date).toLocaleDateString('en-IN'),
-                        'Payment Method': payment.method || 'Cash',
-                        'Status': 'Paid',
-                        'Academic Year': this.getAcademicYear(payment.date),
-                        'Receipt Generated': new Date(payment.date).toLocaleString('en-IN'),
-                        'Sync Status': 'Synced',
-                        'Last Updated': timestamp
-                    }));
-                } catch (error) {
-                    console.error('Failed to format payments data:', error);
-                    return [];
-                }
-            }
-
-            // Format transactions data for Excel
-            static formatTransactionsForExcel(transactionsData, timestamp) {
-                try {
-                    return transactionsData.map(transaction => ({
-                        'Transaction ID': transaction.id,
-                        'Type': transaction.type.toUpperCase(),
-                        'Description': transaction.description,
-                        'Amount (₹)': transaction.amount,
-                        'Category': transaction.category,
-                        'Payment Method': transaction.method || 'Cash',
-                        'Date': new Date(transaction.date).toLocaleDateString('en-IN'),
-                        'Month': new Date(transaction.date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
-                        'Academic Year': this.getAcademicYear(transaction.date),
-                        'Balance Impact': transaction.type === 'income' ? 'Positive' : 'Negative',
-                        'Sync Status': 'Synced',
-                        'Created': new Date(transaction.timestamp).toLocaleString('en-IN'),
-                        'Last Updated': timestamp
-                    }));
-                } catch (error) {
-                    console.error('Failed to format transactions data:', error);
-                    return [];
-                }
-            }
-
-            // Generate financial summary
-            static generateFinancialSummary(studentsData, paymentsData, transactionsData, timestamp) {
-                try {
-                    const totalIncome = transactionsData.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-                    const totalExpenses = transactionsData.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-                    const tuitionIncome = transactionsData.filter(t => t.type === 'income' && t.category === 'Tuition & Education').reduce((sum, t) => sum + t.amount, 0);
-                    const netBalance = totalIncome - totalExpenses;
-                    
-                    // Cash vs Online breakdown
-                    const cashIncome = transactionsData.filter(t => t.type === 'income' && t.method === 'Cash').reduce((sum, t) => sum + t.amount, 0);
-                    const onlineIncome = transactionsData.filter(t => t.type === 'income' && t.method !== 'Cash').reduce((sum, t) => sum + t.amount, 0);
-                    const cashExpenses = transactionsData.filter(t => t.type === 'expense' && t.method === 'Cash').reduce((sum, t) => sum + t.amount, 0);
-                    const onlineExpenses = transactionsData.filter(t => t.type === 'expense' && t.method !== 'Cash').reduce((sum, t) => sum + t.amount, 0);
-                    
-                    return [{
-                        'Report Type': 'Financial Summary',
-                        'Generated On': timestamp,
-                        'Total Students': studentsData.length,
-                        'Active Students': studentsData.filter(s => {
-                            const hasRecentPayment = paymentsData.some(p => p.studentId === s.id);
-                            return hasRecentPayment;
-                        }).length,
-                        'Total Income (₹)': totalIncome,
-                        'Tuition Income (₹)': tuitionIncome,
-                        'Other Income (₹)': totalIncome - tuitionIncome,
-                        'Total Expenses (₹)': totalExpenses,
-                        'Net Balance (₹)': netBalance,
-                        'Cash Income (₹)': cashIncome,
-                        'Online Income (₹)': onlineIncome,
-                        'Cash Expenses (₹)': cashExpenses,
-                        'Online Expenses (₹)': onlineExpenses,
-                        'Cash Balance (₹)': cashIncome - cashExpenses,
-                        'Online Balance (₹)': onlineIncome - onlineExpenses,
-                        'Total Payments': paymentsData.length,
-                        'Average Payment (₹)': paymentsData.length > 0 ? Math.round(tuitionIncome / paymentsData.length) : 0,
-                        'Profit Margin (%)': totalIncome > 0 ? Math.round((netBalance / totalIncome) * 100) : 0,
-                        'Status': 'Auto-Generated'
-                    }];
-                } catch (error) {
-                    console.error('Failed to generate financial summary:', error);
-                    return [];
-                }
-            }
-
-            // Generate monthly statements
-            static generateMonthlyStatements(transactionsData, paymentsData, timestamp) {
-                try {
-                    const monthlyData = {};
-                    
-                    // Process last 12 months
-                    for (let i = 0; i < 12; i++) {
-                        const date = new Date();
-                        date.setMonth(date.getMonth() - i);
-                        const monthKey = date.toISOString().slice(0, 7);
-                        const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-                        
-                        const monthTransactions = transactionsData.filter(t => t.date.startsWith(monthKey));
-                        const monthPayments = paymentsData.filter(p => p.date.startsWith(monthKey));
-                        
-                        if (monthTransactions.length > 0 || monthPayments.length > 0) {
-                            const income = monthTransactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
-                            const expenses = monthTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
-                            const tuitionIncome = monthPayments.reduce((sum, p) => sum + p.amount, 0);
-                            
-                            monthlyData[monthKey] = {
-                                'Month': monthName,
-                                'Month Code': monthKey,
-                                'Total Income (₹)': income,
-                                'Tuition Income (₹)': tuitionIncome,
-                                'Other Income (₹)': income - tuitionIncome,
-                                'Total Expenses (₹)': expenses,
-                                'Net Profit (₹)': income - expenses,
-                                'Payments Received': monthPayments.length,
-                                'Transactions': monthTransactions.length,
-                                'Generated': timestamp
-                            };
-                        }
-                    }
-                    
-                    return Object.values(monthlyData);
-                } catch (error) {
-                    console.error('Failed to generate monthly statements:', error);
-                    return [];
-                }
-            }
-
-            // Get academic year from date
-            static getAcademicYear(dateString) {
-                try {
-                    const date = new Date(dateString);
-                    const year = date.getFullYear();
-                    const month = date.getMonth();
-                    
-                    // Academic year starts in April (month 3)
-                    if (month >= 3) {
-                        return `${year}-${year + 1}`;
-                    } else {
-                        return `${year - 1}-${year}`;
-                    }
-                } catch (error) {
-                    console.error('Failed to get academic year:', error);
-                    return '2024-2025';
-                }
-            }
-
-            // Create and sync Excel data (cloud sync only)
-            static async createExcelFiles(excelData) {
-                try {
-                    // Validate Excel data structure
-                    if (!excelData || typeof excelData !== 'object') {
-                        throw new Error('Invalid Excel data structure');
-                    }
-                    
-                    const dataValidation = {
-                        students: Array.isArray(excelData.students) ? excelData.students.length : 0,
-                        payments: Array.isArray(excelData.payments) ? excelData.payments.length : 0,
-                        transactions: Array.isArray(excelData.transactions) ? excelData.transactions.length : 0,
-                        summary: Array.isArray(excelData.summary) ? excelData.summary.length : 0,
-                        monthly: Array.isArray(excelData.monthly) ? excelData.monthly.length : 0
-                    };
-                    
-                    console.log('📊 Excel data prepared for cloud sync:', dataValidation);
-                    console.log('🔗 Target Excel file:', EXCEL_DIRECT_LINK);
-                    
-                    // Prepare structured data for Excel integration
-                    const excelStructuredData = {
-                        timestamp: new Date().toISOString(),
-                        excelLink: EXCEL_DIRECT_LINK,
-                        sheets: {
-                            students: excelData.students || [],
-                            payments: excelData.payments || [],
-                            transactions: excelData.transactions || [],
-                            summary: excelData.summary || [],
-                            monthly: excelData.monthly || []
-                        },
-                        validation: dataValidation,
-                        totalRecords: Object.values(dataValidation).reduce((sum, count) => sum + count, 0)
-                    };
-                    
-                    // Log Excel integration status
-                    console.log('📈 Excel integration status:', {
-                        targetFile: 'Personal Finance Tracker',
-                        totalRecords: excelStructuredData.totalRecords,
-                        sheetsReady: Object.keys(excelStructuredData.sheets).length,
-                        syncMethod: 'Cloud Database + Manual Export'
-                    });
-                    
-                    // Data is synced to JSONBin.io via DatabaseSync
-                    // Excel file can be manually updated using exported CSV
-                    return true;
-                } catch (error) {
-                    console.error('Failed to prepare Excel data:', error);
-                    throw error;
-                }
-            }
-
-            // Data preparation for cloud sync (no file downloads)
-            static prepareDataForSync(data) {
-                try {
-                    if (!data || data.length === 0) return '';
-                    
-                    // Just prepare data structure for cloud sync
-                    console.log('📋 Data prepared for cloud sync:', data.length, 'records');
-                    return JSON.stringify(data, null, 2);
-                } catch (error) {
-                    console.error('Failed to prepare data:', error);
-                    return '';
-                }
-            }
-
-            // Clear synced data
-            static clearSyncedData() {
-                try {
-                    this.pendingData = {
-                        students: [],
-                        payments: [],
-                        transactions: [],
-                        statements: []
-                    };
-                    this.savePendingData();
-                } catch (error) {
-                    console.error('Failed to clear synced data:', error);
-                }
-            }
-
-            // Handle sync failure
-            static handleSyncFailure() {
-                try {
-                    // Increment attempt count for all pending items
-                    Object.values(this.pendingData).forEach(items => {
-                        items.forEach(item => {
-                            item.attempts = (item.attempts || 0) + 1;
-                            item.lastAttempt = new Date().toISOString();
-                        });
-                    });
-                    
-                    // Remove items that have exceeded max retries
-                    Object.keys(this.pendingData).forEach(type => {
-                        this.pendingData[type] = this.pendingData[type].filter(item => 
-                            item.attempts < EXCEL_CONFIG.maxRetries
-                        );
-                    });
-                    
-                    this.savePendingData();
-                } catch (error) {
-                    console.error('Failed to handle sync failure:', error);
-                }
-            }
-
-            // Manual sync all data
-            static async syncAllData() {
-                try {
-                    showToast('Starting complete Excel sync...', 'info');
-                    
-                    // Queue all current data for sync
-                    students.forEach(student => this.queueForSync('students', student));
-                    payments.forEach(payment => this.queueForSync('payments', payment));
-                    transactions.forEach(transaction => this.queueForSync('transactions', transaction));
-                    
-                    // Trigger sync
-                    await this.attemptSync();
-                } catch (error) {
-                    console.error('Failed to sync all data:', error);
-                    showToast('Failed to sync all data', 'error');
-                }
-            }
-
-            // Process pending syncs
-            static async processPendingSync() {
-                try {
-                    const totalPending = Object.values(this.pendingData).reduce((sum, arr) => sum + arr.length, 0);
-                    
-                    if (totalPending === 0) {
-                        showToast('No pending syncs found', 'info');
-                        return;
-                    }
-                    
-                    showToast(`Processing ${totalPending} pending syncs...`, 'info');
-                    await this.attemptSync();
-                } catch (error) {
-                    console.error('Failed to process pending sync:', error);
-                    showToast('Failed to process pending syncs', 'error');
-                }
-            }
-
-            // Get sync status
-            static getSyncStatus() {
-                try {
-                    const totalPending = Object.values(this.pendingData).reduce((sum, arr) => sum + arr.length, 0);
-                    return {
-                        pending: totalPending,
-                        lastSync: lastSyncTime,
-                        autoSyncEnabled: autoSyncEnabled,
-                        syncInProgress: syncInProgress
-                    };
-                } catch (error) {
-                    console.error('Failed to get sync status:', error);
-                    return {
-                        pending: 0,
-                        lastSync: null,
-                        autoSyncEnabled: false,
-                        syncInProgress: false
-                    };
-                }
-            }
-        }
 
         // Data storage
         let students = JSON.parse(localStorage.getItem('finance_students')) || [];
@@ -1894,198 +830,85 @@
         let nextTransactionId = parseInt(localStorage.getItem('nextTransactionId')) || 1;
         let nextPaymentId = parseInt(localStorage.getItem('nextPaymentId')) || 1;
 
-        // UI Helper Functions
-        function showSyncIndicator(message) {
-            try {
-                const indicator = document.getElementById('syncIndicator');
-                const status = document.getElementById('syncStatus');
-                if (indicator && status) {
-                    status.textContent = message;
-                    indicator.classList.remove('hidden');
-                    indicator.classList.add('syncing');
-                }
-            } catch (error) {
-                console.error('Failed to show sync indicator:', error);
-            }
-        }
-
-        function hideSyncIndicator() {
-            try {
-                const indicator = document.getElementById('syncIndicator');
-                if (indicator) {
-                    indicator.classList.add('hidden');
-                    indicator.classList.remove('syncing');
-                }
-            } catch (error) {
-                console.error('Failed to hide sync indicator:', error);
-            }
-        }
-
-        function updateConnectionStatus(isOnline) {
-            try {
-                const statusElement = document.getElementById('connectionStatus');
-                const backendStatus = document.getElementById('backendStatus');
-                
-                if (statusElement) {
-                    if (isOnline) {
-                        statusElement.innerHTML = '<i class="fas fa-wifi mr-1"></i>Online';
-                        statusElement.className = 'ml-2 px-2 py-1 bg-green-500 bg-opacity-30 rounded-full text-xs';
-                    } else {
-                        statusElement.innerHTML = '<i class="fas fa-wifi-slash mr-1"></i>Offline';
-                        statusElement.className = 'ml-2 px-2 py-1 bg-orange-500 bg-opacity-30 rounded-full text-xs';
-                    }
-                }
-                
-                if (backendStatus) {
-                    if (isOnline) {
-                        backendStatus.innerHTML = '<i class="fas fa-check-circle mr-1"></i>Active';
-                        backendStatus.className = 'text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full';
-                    } else {
-                        backendStatus.innerHTML = '<i class="fas fa-exclamation-triangle mr-1"></i>Offline';
-                        backendStatus.className = 'text-xs px-2 py-1 bg-orange-100 text-orange-800 rounded-full';
-                    }
-                }
-            } catch (error) {
-                console.error('Failed to update connection status:', error);
-            }
-        }
-
         // FAB Menu Toggle
         function toggleFAB() {
-            try {
-                const menu = document.getElementById('fabMenu');
-                const icon = document.querySelector('#fabMain i');
-                
-                if (menu && icon) {
-                    if (menu.classList.contains('hidden')) {
-                        menu.classList.remove('hidden');
-                        icon.classList.remove('fa-plus');
-                        icon.classList.add('fa-times');
-                    } else {
-                        menu.classList.add('hidden');
-                        icon.classList.remove('fa-times');
-                        icon.classList.add('fa-plus');
-                    }
-                }
-            } catch (error) {
-                console.error('Failed to toggle FAB:', error);
+            const menu = document.getElementById('fabMenu');
+            const icon = document.querySelector('#fabMain i');
+            
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                icon.classList.remove('fa-plus');
+                icon.classList.add('fa-times');
+            } else {
+                menu.classList.add('hidden');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-plus');
             }
         }
 
         // Tab management
         function showTab(tabName) {
-            try {
-                // Hide FAB menu
-                const fabMenu = document.getElementById('fabMenu');
-                const fabIcon = document.querySelector('#fabMain i');
-                if (fabMenu) fabMenu.classList.add('hidden');
-                if (fabIcon) {
-                    fabIcon.classList.remove('fa-times');
-                    fabIcon.classList.add('fa-plus');
-                }
-                
-                // Hide all tab contents
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.add('hidden');
-                });
-                
-                // Remove active class from all tabs
-                document.querySelectorAll('.tab-btn').forEach(btn => {
-                    btn.classList.remove('active', 'bg-blue-600', 'text-white');
-                    btn.classList.add('text-gray-600');
-                });
-                
-                // Show selected tab content
-                const tabContent = document.getElementById(tabName + 'Content');
-                if (tabContent) {
-                    tabContent.classList.remove('hidden');
-                }
-                
-                // Add active class to selected tab
-                const activeTab = document.getElementById(tabName + 'Tab');
-                if (activeTab) {
-                    activeTab.classList.add('active', 'bg-blue-600', 'text-white');
-                    activeTab.classList.remove('text-gray-600');
-                }
-                
-                // Update content based on tab
-                if (tabName === 'dashboard') {
-                    displayDashboard();
-                } else if (tabName === 'tuition') {
-                    displayStudents();
-                } else if (tabName === 'transactions') {
-                    displayTransactions();
-                } else if (tabName === 'analytics') {
-                    displayAnalytics();
-                }
-            } catch (error) {
-                console.error('Failed to show tab:', error);
+            // Hide FAB menu
+            document.getElementById('fabMenu').classList.add('hidden');
+            document.querySelector('#fabMain i').classList.remove('fa-times');
+            document.querySelector('#fabMain i').classList.add('fa-plus');
+            
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-blue-600', 'text-white');
+                btn.classList.add('text-gray-600');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName + 'Content').classList.remove('hidden');
+            
+            // Add active class to selected tab
+            const activeTab = document.getElementById(tabName + 'Tab');
+            activeTab.classList.add('active', 'bg-blue-600', 'text-white');
+            activeTab.classList.remove('text-gray-600');
+            
+            // Update content based on tab
+            if (tabName === 'dashboard') {
+                displayDashboard();
+            } else if (tabName === 'tuition') {
+                displayStudents();
+            } else if (tabName === 'transactions') {
+                displayTransactions();
+            } else if (tabName === 'analytics') {
+                displayAnalytics();
             }
         }
 
         // Modal Management
         function showAddIncomeModal() {
-            try {
-                const modal = document.getElementById('incomeModal');
-                const dateInput = document.getElementById('incomeDate');
-                
-                if (modal) {
-                    modal.classList.remove('hidden');
-                    modal.classList.add('flex');
-                }
-                
-                if (dateInput) {
-                    dateInput.value = new Date().toISOString().split('T')[0];
-                }
-            } catch (error) {
-                console.error('Failed to show income modal:', error);
-            }
+            document.getElementById('incomeModal').classList.remove('hidden');
+            document.getElementById('incomeModal').classList.add('flex');
+            document.getElementById('incomeDate').value = new Date().toISOString().split('T')[0];
         }
 
         function closeIncomeModal() {
-            try {
-                const modal = document.getElementById('incomeModal');
-                if (modal) {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                }
-            } catch (error) {
-                console.error('Failed to close income modal:', error);
-            }
+            document.getElementById('incomeModal').classList.add('hidden');
+            document.getElementById('incomeModal').classList.remove('flex');
         }
 
         function showAddExpenseModal() {
-            try {
-                const modal = document.getElementById('expenseModal');
-                const dateInput = document.getElementById('expenseDate');
-                
-                if (modal) {
-                    modal.classList.remove('hidden');
-                    modal.classList.add('flex');
-                }
-                
-                if (dateInput) {
-                    dateInput.value = new Date().toISOString().split('T')[0];
-                }
-            } catch (error) {
-                console.error('Failed to show expense modal:', error);
-            }
+            document.getElementById('expenseModal').classList.remove('hidden');
+            document.getElementById('expenseModal').classList.add('flex');
+            document.getElementById('expenseDate').value = new Date().toISOString().split('T')[0];
         }
 
         function closeExpenseModal() {
-            try {
-                const modal = document.getElementById('expenseModal');
-                if (modal) {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                }
-            } catch (error) {
-                console.error('Failed to close expense modal:', error);
-            }
+            document.getElementById('expenseModal').classList.add('hidden');
+            document.getElementById('expenseModal').classList.remove('flex');
         }
 
-        // Add Income with automatic Excel sync
-        document.getElementById('incomeForm').addEventListener('submit', async function(e) {
+        // Add Income
+        document.getElementById('incomeForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const description = document.getElementById('incomeDescription').value.trim();
@@ -2110,28 +933,21 @@
                 timestamp: new Date().toISOString()
             };
             
-            // Save locally
             transactions.push(transaction);
             saveData();
             updateStats();
             displayDashboard();
             displayTransactions();
             
-            // Queue for Excel sync
-            ExcelAutoSync.queueForSync('transactions', transaction);
-            
-            // Queue for database sync
-            DatabaseSync.queueOperation('create', { type: 'transaction', ...transaction });
-            
             // Reset form and close modal
             document.getElementById('incomeForm').reset();
             closeIncomeModal();
             
-            showToast('Income added! Auto-syncing to cloud...', 'success');
+            showToast('Income added successfully!', 'success');
         });
 
-        // Add Expense with automatic Excel sync
-        document.getElementById('expenseForm').addEventListener('submit', async function(e) {
+        // Add Expense
+        document.getElementById('expenseForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const description = document.getElementById('expenseDescription').value.trim();
@@ -2156,28 +972,21 @@
                 timestamp: new Date().toISOString()
             };
             
-            // Save locally
             transactions.push(transaction);
             saveData();
             updateStats();
             displayDashboard();
             displayTransactions();
             
-            // Queue for Excel sync
-            ExcelAutoSync.queueForSync('transactions', transaction);
-            
-            // Queue for database sync
-            DatabaseSync.queueOperation('create', { type: 'transaction', ...transaction });
-            
             // Reset form and close modal
             document.getElementById('expenseForm').reset();
             closeExpenseModal();
             
-            showToast('Expense added! Auto-syncing to cloud...', 'success');
+            showToast('Expense added successfully!', 'success');
         });
 
-        // Add student with automatic Excel sync
-        document.getElementById('studentForm').addEventListener('submit', async function(e) {
+        // Add student
+        document.getElementById('studentForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
             const name = document.getElementById('studentName').value.trim();
@@ -2215,22 +1024,18 @@
                 paymentStatus: generatePaymentStatus(duration)
             };
             
-            // Save locally
             students.push(student);
             saveData();
             displayStudents();
             updateStats();
             
-            // Queue for Excel sync
-            ExcelAutoSync.queueForSync('students', student);
-            
-            // Queue for database sync
-            DatabaseSync.queueOperation('create', { type: 'student', ...student });
+            // Auto-sync to Excel
+            syncStudentToExcel(student);
             
             // Reset form
             document.getElementById('studentForm').reset();
             
-            showToast('Student added! Auto-syncing to cloud...', 'success');
+            showToast('Student added successfully!', 'success');
         });
 
         // Generate payment status for duration
@@ -2322,206 +1127,171 @@
 
         // Show payment modal
         function showPaymentModal(studentId) {
-            try {
-                const student = students.find(s => s.id === studentId);
-                if (!student) return;
+            const student = students.find(s => s.id === studentId);
+            if (!student) return;
+            
+            const modal = document.getElementById('paymentModal');
+            const content = document.getElementById('paymentModalContent');
+            
+            content.innerHTML = `
+                <div class="mb-4">
+                    <h4 class="font-semibold text-gray-800">${student.name}</h4>
+                    <p class="text-sm text-gray-600">${student.department}</p>
+                </div>
                 
-                const modal = document.getElementById('paymentModal');
-                const content = document.getElementById('paymentModalContent');
-                
-                if (!modal || !content) return;
-                
-                content.innerHTML = `
-                    <div class="mb-4">
-                        <h4 class="font-semibold text-gray-800">${student.name}</h4>
-                        <p class="text-sm text-gray-600">${student.department}</p>
-                    </div>
-                    
-                    <div class="space-y-2 max-h-60 overflow-y-auto">
-                        ${Object.entries(student.paymentStatus).map(([monthKey, monthData]) => `
-                            <div class="p-3 rounded-xl ${monthData.paid ? 'bg-green-50 border border-green-200' : 'bg-gray-50'}">
-                                <div class="flex items-center justify-between mb-2">
-                                    <div>
-                                        <div class="font-medium text-sm">${monthData.monthName}</div>
-                                        <div class="text-xs text-gray-600">₹${student.monthlyFee}</div>
-                                        ${monthData.paid ? `<div class="text-xs text-green-600 flex items-center mt-1">
-                                            <i class="fas fa-${monthData.method === 'Cash' ? 'wallet' : 'credit-card'} mr-1"></i>
-                                            ${monthData.method || 'Cash'}
-                                        </div>` : ''}
-                                    </div>
-                                    <label class="flex items-center cursor-pointer">
-                                        <input type="checkbox" 
-                                               ${monthData.paid ? 'checked' : ''} 
-                                               onchange="togglePaymentStatus(${student.id}, '${monthKey}')"
-                                               class="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500">
-                                    </label>
+                <div class="space-y-2 max-h-60 overflow-y-auto">
+                    ${Object.entries(student.paymentStatus).map(([monthKey, monthData]) => `
+                        <div class="p-3 rounded-xl ${monthData.paid ? 'bg-green-50 border border-green-200' : 'bg-gray-50'}">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <div class="font-medium text-sm">${monthData.monthName}</div>
+                                    <div class="text-xs text-gray-600">₹${student.monthlyFee}</div>
+                                    ${monthData.paid ? `<div class="text-xs text-green-600 flex items-center mt-1">
+                                        <i class="fas fa-${monthData.method === 'Cash' ? 'money-bill-wave' : 'credit-card'} mr-1"></i>
+                                        ${monthData.method || 'Cash'}
+                                    </div>` : ''}
                                 </div>
-                                
-                                ${!monthData.paid ? `
-                                    <div class="mt-2 pt-2 border-t border-gray-200">
-                                        <label class="block text-xs font-medium text-gray-700 mb-1">Payment Method:</label>
-                                        <div class="grid grid-cols-2 gap-2">
-                                            <button onclick="markPaymentWithMethod(${student.id}, '${monthKey}', 'Cash')" 
-                                                    class="flex items-center justify-center py-2 px-3 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-all text-xs font-medium">
-                                                <i class="fas fa-wallet mr-1"></i>Cash
-                                            </button>
-                                            <button onclick="markPaymentWithMethod(${student.id}, '${monthKey}', 'Online')" 
-                                                    class="flex items-center justify-center py-2 px-3 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-all text-xs font-medium">
-                                                <i class="fas fa-credit-card mr-1"></i>Online
-                                            </button>
-                                        </div>
-                                    </div>
-                                ` : ''}
+                                <label class="flex items-center cursor-pointer">
+                                    <input type="checkbox" 
+                                           ${monthData.paid ? 'checked' : ''} 
+                                           onchange="togglePaymentStatus(${student.id}, '${monthKey}')"
+                                           class="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500">
+                                </label>
                             </div>
-                        `).join('')}
-                    </div>
-                `;
-                
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-            } catch (error) {
-                console.error('Failed to show payment modal:', error);
-            }
+                            
+                            ${!monthData.paid ? `
+                                <div class="mt-2 pt-2 border-t border-gray-200">
+                                    <label class="block text-xs font-medium text-gray-700 mb-1">Payment Method:</label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <button onclick="markPaymentWithMethod(${student.id}, '${monthKey}', 'Cash')" 
+                                                class="flex items-center justify-center py-2 px-3 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 transition-all text-xs font-medium">
+                                            <i class="fas fa-money-bill-wave mr-1"></i>Cash
+                                        </button>
+                                        <button onclick="markPaymentWithMethod(${student.id}, '${monthKey}', 'Online')" 
+                                                class="flex items-center justify-center py-2 px-3 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-all text-xs font-medium">
+                                            <i class="fas fa-credit-card mr-1"></i>Online
+                                        </button>
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
 
         // Close payment modal
         function closePaymentModal() {
-            try {
-                const modal = document.getElementById('paymentModal');
-                if (modal) {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                }
-            } catch (error) {
-                console.error('Failed to close payment modal:', error);
-            }
+            const modal = document.getElementById('paymentModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
         }
 
-        // Mark payment with specific method and automatic Excel sync
-        async function markPaymentWithMethod(studentId, monthKey, method) {
-            try {
-                const student = students.find(s => s.id === studentId);
-                if (!student) return;
-                
-                const monthData = student.paymentStatus[monthKey];
-                if (!monthData) return;
-                
-                // Mark as paid with method
-                monthData.paid = true;
-                monthData.paidDate = new Date().toISOString();
-                monthData.amount = student.monthlyFee;
-                monthData.method = method;
-                
-                // Create payment record
-                const payment = {
-                    id: nextPaymentId++,
-                    studentId: student.id,
-                    studentName: student.name,
-                    month: monthKey,
-                    monthName: monthData.monthName,
-                    amount: student.monthlyFee,
-                    date: new Date().toISOString(),
-                    method: method
-                };
-                
-                payments.push(payment);
-                
-                // Add to tuition income
-                const tuitionTransaction = {
-                    id: nextTransactionId++,
-                    type: 'income',
-                    description: `Tuition payment from ${student.name} (${method})`,
-                    amount: student.monthlyFee,
-                    category: 'Tuition & Education',
-                    method: method,
-                    date: new Date().toISOString().split('T')[0],
-                    timestamp: new Date().toISOString()
-                };
-                
-                transactions.push(tuitionTransaction);
-                
-                // Save locally
-                saveData();
-                displayStudents();
-                displayTransactions();
-                displayDashboard();
-                updateStats();
-                
-                // Queue for Excel sync
-                ExcelAutoSync.queueForSync('payments', payment);
-                ExcelAutoSync.queueForSync('transactions', tuitionTransaction);
-                ExcelAutoSync.queueForSync('students', student); // Update student status
-                
-                // Queue for database sync
-                DatabaseSync.queueOperation('create', { type: 'payment', ...payment });
-                DatabaseSync.queueOperation('create', { type: 'transaction', ...tuitionTransaction });
-                DatabaseSync.queueOperation('update', { type: 'student', ...student });
-                
-                // Send payment confirmation email
-                sendPaymentConfirmation(student, monthData);
-                
-                // Refresh the payment modal to show updated status
-                showPaymentModal(studentId);
-                
-                showToast(`${method} payment recorded! Auto-syncing to cloud...`, 'success');
-            } catch (error) {
-                console.error('Failed to mark payment:', error);
-                showToast('Failed to record payment', 'error');
-            }
+        // Mark payment with specific method
+        function markPaymentWithMethod(studentId, monthKey, method) {
+            const student = students.find(s => s.id === studentId);
+            if (!student) return;
+            
+            const monthData = student.paymentStatus[monthKey];
+            if (!monthData) return;
+            
+            // Mark as paid with method
+            monthData.paid = true;
+            monthData.paidDate = new Date().toISOString();
+            monthData.amount = student.monthlyFee;
+            monthData.method = method;
+            
+            // Create payment record
+            const payment = {
+                id: nextPaymentId++,
+                studentId: student.id,
+                studentName: student.name,
+                month: monthKey,
+                monthName: monthData.monthName,
+                amount: student.monthlyFee,
+                date: new Date().toISOString(),
+                method: method
+            };
+            
+            payments.push(payment);
+            
+            // Add to tuition income
+            const tuitionTransaction = {
+                id: nextTransactionId++,
+                type: 'income',
+                description: `Tuition payment from ${student.name} (${method})`,
+                amount: student.monthlyFee,
+                category: 'Tuition & Education',
+                method: method,
+                date: new Date().toISOString().split('T')[0],
+                timestamp: new Date().toISOString()
+            };
+            
+            transactions.push(tuitionTransaction);
+            
+            // Auto-sync payment to Excel
+            syncPaymentToExcel(payment);
+            
+            // Send payment confirmation email
+            sendPaymentConfirmation(student, monthData);
+            
+            saveData();
+            displayStudents();
+            displayTransactions();
+            displayDashboard();
+            updateStats();
+            
+            // Refresh the payment modal to show updated status
+            showPaymentModal(studentId);
+            
+            showToast(`${method} payment marked for ${student.name}`, 'success');
         }
 
         // Toggle payment status (for checkbox)
         function togglePaymentStatus(studentId, monthKey) {
-            try {
-                const student = students.find(s => s.id === studentId);
-                if (!student) return;
+            const student = students.find(s => s.id === studentId);
+            if (!student) return;
+            
+            const monthData = student.paymentStatus[monthKey];
+            if (!monthData) return;
+            
+            if (monthData.paid) {
+                // Unmark payment
+                monthData.paid = false;
+                monthData.paidDate = null;
+                monthData.amount = 0;
+                monthData.method = null;
                 
-                const monthData = student.paymentStatus[monthKey];
-                if (!monthData) return;
+                // Remove payment record
+                payments = payments.filter(p => !(p.studentId === studentId && p.month === monthKey));
                 
-                if (monthData.paid) {
-                    // Unmark payment
-                    monthData.paid = false;
-                    monthData.paidDate = null;
-                    monthData.amount = 0;
-                    monthData.method = null;
-                    
-                    // Remove payment record
-                    payments = payments.filter(p => !(p.studentId === studentId && p.month === monthKey));
-                    
-                    // Remove corresponding transaction
-                    transactions = transactions.filter(t => !(
-                        t.type === 'income' && 
-                        t.category === 'Tuition & Education' && 
-                        t.description.includes(student.name) &&
-                        t.amount === student.monthlyFee
-                    ));
-                    
-                    showToast(`Payment unmarked for ${student.name}`, 'info');
-                }
+                // Remove corresponding transaction
+                transactions = transactions.filter(t => !(
+                    t.type === 'income' && 
+                    t.category === 'Tuition & Education' && 
+                    t.description.includes(student.name) &&
+                    t.amount === student.monthlyFee
+                ));
                 
-                saveData();
-                displayStudents();
-                displayTransactions();
-                displayDashboard();
-                updateStats();
-                
-                // Refresh the payment modal
-                showPaymentModal(studentId);
-            } catch (error) {
-                console.error('Failed to toggle payment status:', error);
-                showToast('Failed to update payment status', 'error');
+                showToast(`Payment unmarked for ${student.name}`, 'info');
             }
+            
+            saveData();
+            displayStudents();
+            displayTransactions();
+            displayDashboard();
+            updateStats();
+            
+            // Refresh the payment modal
+            showPaymentModal(studentId);
         }
 
         // Legacy function for backward compatibility
         function markPayment(studentId, monthKey) {
-            try {
-                markPaymentWithMethod(studentId, monthKey, 'Cash');
-            } catch (error) {
-                console.error('Failed to mark payment:', error);
-                showToast('Failed to mark payment', 'error');
-            }
+            markPaymentWithMethod(studentId, monthKey, 'Cash');
         }
 
         // Display Dashboard
@@ -2643,34 +1413,69 @@
                 });
         }
 
+        // Display payments
+        function displayPayments() {
+            const container = document.getElementById('paymentsList');
+            
+            if (payments.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-credit-card text-4xl mb-2 block opacity-50"></i>
+                        <p>No payments recorded yet</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // Sort payments by date (newest first)
+            const sortedPayments = [...payments].sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            container.innerHTML = sortedPayments.map(payment => `
+                <div class="bg-white rounded-2xl p-4 card-shadow">
+                    <div class="flex items-center justify-between">
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800">${payment.studentName}</h4>
+                            <p class="text-sm text-gray-600">${payment.monthName}</p>
+                            <p class="text-xs text-gray-500">${new Date(payment.date).toLocaleDateString()}</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-lg font-bold text-green-600">₹${payment.amount}</div>
+                            <div class="text-xs text-gray-500">${payment.method}</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
         // Display analytics
         function displayAnalytics() {
             updateStats();
             
-            // Category wise expense stats
-            const expenseCategories = {};
-            transactions.filter(t => t.type === 'expense').forEach(transaction => {
-                if (!expenseCategories[transaction.category]) {
-                    expenseCategories[transaction.category] = 0;
+            // Department wise stats
+            const departmentStats = {};
+            students.forEach(student => {
+                if (!departmentStats[student.department]) {
+                    departmentStats[student.department] = { count: 0, revenue: 0 };
                 }
-                expenseCategories[transaction.category] += transaction.amount;
+                departmentStats[student.department].count++;
+                
+                // Calculate revenue from payments
+                const studentPayments = payments.filter(p => p.studentId === student.id);
+                departmentStats[student.department].revenue += studentPayments.reduce((sum, p) => sum + p.amount, 0);
             });
             
-            const categoryContainer = document.getElementById('categoryStats');
-            if (Object.keys(expenseCategories).length === 0) {
-                categoryContainer.innerHTML = '<p class="text-gray-500 text-sm">No expense categories yet</p>';
-            } else {
-                categoryContainer.innerHTML = Object.entries(expenseCategories).map(([category, amount]) => `
-                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
-                        <div>
-                            <div class="font-medium text-sm">${category}</div>
-                        </div>
-                        <div class="text-right">
-                            <div class="font-bold text-red-600">₹${amount}</div>
-                        </div>
+            const departmentContainer = document.getElementById('departmentStats');
+            departmentContainer.innerHTML = Object.entries(departmentStats).map(([dept, stats]) => `
+                <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
+                    <div>
+                        <div class="font-medium text-sm">${dept}</div>
+                        <div class="text-xs text-gray-600">${stats.count} students</div>
                     </div>
-                `).join('');
-            }
+                    <div class="text-right">
+                        <div class="font-bold text-green-600">₹${stats.revenue}</div>
+                    </div>
+                </div>
+            `).join('');
         }
 
         // Update statistics
@@ -2732,179 +1537,404 @@
             document.getElementById('tuitionIncomeAnalytics').textContent = `₹${tuitionIncome}`;
         }
 
-        // Delete student with automatic Excel sync
-        async function deleteStudent(studentId) {
+        // Sync student to Excel (OneDrive)
+        async function syncStudentToExcel(student) {
+            if (!autoSyncEnabled) return;
+            
             try {
-                if (confirm('Are you sure you want to delete this student and all their payment records?')) {
-                    const student = students.find(s => s.id === studentId);
-                    
-                    // Remove locally
-                    students = students.filter(s => s.id !== studentId);
-                    payments = payments.filter(p => p.studentId !== studentId);
-                    
-                    // Remove related transactions
-                    transactions = transactions.filter(t => 
-                        !(t.description && t.description.includes(student?.name))
-                    );
-                    
-                    saveData();
-                    displayStudents();
-                    updateStats();
-                    
-                    // Queue deletion for Excel sync (mark as deleted)
-                    if (student) {
-                        ExcelAutoSync.queueForSync('students', { 
-                            ...student, 
-                            status: 'DELETED',
-                            deletedAt: new Date().toISOString() 
-                        });
-                        
-                        // Queue for database sync
-                        DatabaseSync.queueOperation('delete', { type: 'student', ...student });
-                    }
-                    
-                    showToast('Student deleted! Auto-syncing to cloud...', 'success');
+                showToast('Syncing student to Excel...', 'info');
+                
+                // Prepare student data for Excel with proper formatting
+                const studentRow = {
+                    'Student ID': student.id,
+                    'Name': student.name,
+                    'Subject/Course': student.department,
+                    'Email': student.email,
+                    'Phone': student.phone || 'Not provided',
+                    'Monthly Fee (₹)': student.monthlyFee,
+                    'Duration (Months)': student.duration,
+                    'Join Date': new Date(student.joinDate).toLocaleDateString('en-IN'),
+                    'Total Course Fee (₹)': student.monthlyFee * student.duration,
+                    'Status': 'Active',
+                    'Last Updated': new Date().toLocaleString('en-IN')
+                };
+                
+                // Store for Excel export
+                const excelStudents = JSON.parse(localStorage.getItem('excel_students') || '[]');
+                const existingIndex = excelStudents.findIndex(s => s['Student ID'] === student.id);
+                
+                if (existingIndex >= 0) {
+                    excelStudents[existingIndex] = studentRow;
+                } else {
+                    excelStudents.push(studentRow);
                 }
+                
+                localStorage.setItem('excel_students', JSON.stringify(excelStudents));
+                localStorage.setItem('lastSyncTime', new Date().toISOString());
+                
+                // Auto-open Excel for immediate sync
+                setTimeout(() => {
+                    window.open(EXCEL_DIRECT_LINK, '_blank');
+                }, 1000);
+                
+                showToast('Student synced! Excel opened for update.', 'success');
+                console.log('Student data ready for Excel:', studentRow);
+                
             } catch (error) {
-                console.error('Failed to delete student:', error);
-                showToast('Failed to delete student', 'error');
+                console.error('Excel sync error:', error);
+                showToast('Excel sync failed - data saved locally', 'warning');
             }
         }
 
-        // Delete transaction
-        function deleteTransaction(transactionId) {
+        // Sync payment to Excel
+        async function syncPaymentToExcel(payment) {
+            if (!autoSyncEnabled) return;
+            
             try {
-                if (confirm('Are you sure you want to delete this transaction?')) {
-                    transactions = transactions.filter(t => t.id !== transactionId);
-                    saveData();
-                    displayTransactions();
-                    displayDashboard();
-                    updateStats();
-                    showToast('Transaction deleted successfully', 'success');
+                showToast('Syncing payment to Excel...', 'info');
+                
+                // Prepare payment data for Excel with proper formatting
+                const paymentRow = {
+                    'Payment ID': payment.id,
+                    'Student Name': payment.studentName,
+                    'Month': payment.monthName,
+                    'Amount (₹)': payment.amount,
+                    'Payment Date': new Date(payment.date).toLocaleDateString('en-IN'),
+                    'Payment Method': payment.method || 'Cash',
+                    'Status': 'Paid',
+                    'Receipt Generated': new Date().toLocaleString('en-IN'),
+                    'Academic Year': new Date().getFullYear() + '-' + (new Date().getFullYear() + 1),
+                    'Notes': `Payment received for ${payment.monthName}`
+                };
+                
+                // Store for Excel export
+                const excelPayments = JSON.parse(localStorage.getItem('excel_payments') || '[]');
+                const existingIndex = excelPayments.findIndex(p => p['Payment ID'] === payment.id);
+                
+                if (existingIndex >= 0) {
+                    excelPayments[existingIndex] = paymentRow;
+                } else {
+                    excelPayments.push(paymentRow);
                 }
+                
+                localStorage.setItem('excel_payments', JSON.stringify(excelPayments));
+                localStorage.setItem('lastSyncTime', new Date().toISOString());
+                
+                showToast('Payment synced! Check Excel for updates.', 'success');
+                console.log('Payment data ready for Excel:', paymentRow);
+                
             } catch (error) {
-                console.error('Failed to delete transaction:', error);
-                showToast('Failed to delete transaction', 'error');
+                console.error('Excel sync error:', error);
+                showToast('Excel sync failed - data saved locally', 'warning');
             }
         }
 
-        // Export to CSV (manual download)
+        // Export to Excel with comprehensive data
         function exportToExcel() {
-            try {
-                showToast('Preparing CSV export...', 'info');
+            // Get all synced data
+            const excelStudents = JSON.parse(localStorage.getItem('excel_students') || '[]');
+            const excelPayments = JSON.parse(localStorage.getItem('excel_payments') || '[]');
+            
+            // Prepare comprehensive student data
+            const studentData = students.map(student => {
+                const studentPayments = payments.filter(p => p.studentId === student.id);
+                const totalPaid = studentPayments.reduce((sum, p) => sum + p.amount, 0);
+                const totalDue = (student.monthlyFee * student.duration) - totalPaid;
                 
-                const timestamp = new Date().toISOString().split('T')[0];
-                
-                // Create comprehensive CSV with all data
-                const allData = [];
-                
-                // Add students data
-                students.forEach(student => {
-                    const studentPayments = payments.filter(p => p.studentId === student.id);
-                    const totalPaid = studentPayments.reduce((sum, p) => sum + p.amount, 0);
-                    const totalDue = (student.monthlyFee * student.duration) - totalPaid;
-                    
-                    allData.push({
-                        'Type': 'Student',
-                        'ID': student.id,
-                        'Name': student.name,
-                        'Subject': student.department,
-                        'Email': student.email,
-                        'Phone': student.phone || '',
-                        'Monthly Fee': student.monthlyFee,
-                        'Duration': student.duration,
-                        'Total Paid': totalPaid,
-                        'Amount Due': Math.max(0, totalDue),
-                        'Join Date': new Date(student.joinDate).toLocaleDateString('en-IN'),
-                        'Status': totalDue <= 0 ? 'Completed' : 'Active'
-                    });
-                });
-                
-                // Add transactions data
-                transactions.forEach(transaction => {
-                    allData.push({
-                        'Type': 'Transaction',
-                        'ID': transaction.id,
-                        'Name': transaction.description,
-                        'Subject': transaction.type.toUpperCase(),
-                        'Email': '',
-                        'Phone': '',
-                        'Monthly Fee': transaction.type === 'income' ? transaction.amount : -transaction.amount,
-                        'Duration': '',
-                        'Total Paid': '',
-                        'Amount Due': '',
-                        'Join Date': new Date(transaction.date).toLocaleDateString('en-IN'),
-                        'Status': transaction.category
-                    });
-                });
-                
-                // Convert to CSV
-                const csvContent = convertToCSV(allData);
-                downloadCSV(csvContent, `Finance-Data-${timestamp}.csv`);
-                
-                showToast('CSV file downloaded successfully!', 'success');
-            } catch (error) {
-                console.error('Failed to export CSV:', error);
-                showToast('Failed to export CSV', 'error');
-            }
+                return {
+                    'Student ID': student.id,
+                    'Name': student.name,
+                    'Subject/Course': student.department,
+                    'Email': student.email,
+                    'Phone': student.phone || 'Not provided',
+                    'Monthly Fee (₹)': student.monthlyFee,
+                    'Duration (Months)': student.duration,
+                    'Total Course Fee (₹)': student.monthlyFee * student.duration,
+                    'Amount Paid (₹)': totalPaid,
+                    'Amount Due (₹)': totalDue,
+                    'Payment Status': totalDue <= 0 ? 'Completed' : 'Pending',
+                    'Join Date': new Date(student.joinDate).toLocaleDateString('en-IN'),
+                    'Last Updated': new Date().toLocaleString('en-IN')
+                };
+            });
+            
+            // Prepare comprehensive payment data
+            const paymentData = payments.map(payment => ({
+                'Payment ID': payment.id,
+                'Student Name': payment.studentName,
+                'Month': payment.monthName,
+                'Amount (₹)': payment.amount,
+                'Payment Date': new Date(payment.date).toLocaleDateString('en-IN'),
+                'Payment Method': payment.method || 'Cash',
+                'Status': 'Paid',
+                'Academic Year': new Date(payment.date).getFullYear() + '-' + (new Date(payment.date).getFullYear() + 1),
+                'Receipt Generated': new Date(payment.date).toLocaleString('en-IN')
+            }));
+            
+            // Prepare financial summary
+            const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            const tuitionIncome = transactions.filter(t => t.type === 'income' && t.category === 'Tuition & Education').reduce((sum, t) => sum + t.amount, 0);
+            
+            const financialSummary = [{
+                'Metric': 'Total Students',
+                'Value': students.length,
+                'Details': 'Active students enrolled'
+            }, {
+                'Metric': 'Total Income (₹)',
+                'Value': totalIncome,
+                'Details': 'All income sources'
+            }, {
+                'Metric': 'Tuition Income (₹)',
+                'Value': tuitionIncome,
+                'Details': 'Income from tuition fees'
+            }, {
+                'Metric': 'Total Expenses (₹)',
+                'Value': totalExpenses,
+                'Details': 'All recorded expenses'
+            }, {
+                'Metric': 'Net Balance (₹)',
+                'Value': totalIncome - totalExpenses,
+                'Details': 'Income minus expenses'
+            }, {
+                'Metric': 'Last Updated',
+                'Value': new Date().toLocaleString('en-IN'),
+                'Details': 'Data export timestamp'
+            }];
+            
+            // Create CSV files
+            const studentCSV = convertToCSV(studentData);
+            const paymentCSV = convertToCSV(paymentData);
+            const summaryCSV = convertToCSV(financialSummary);
+            
+            // Download files
+            downloadCSV(studentCSV, `students-${new Date().toISOString().split('T')[0]}.csv`);
+            downloadCSV(paymentCSV, `payments-${new Date().toISOString().split('T')[0]}.csv`);
+            downloadCSV(summaryCSV, `financial-summary-${new Date().toISOString().split('T')[0]}.csv`);
+            
+            // Open OneDrive Excel file
+            setTimeout(() => {
+                window.open(EXCEL_DIRECT_LINK, '_blank');
+            }, 500);
+            
+            // Update sync time
+            localStorage.setItem('lastSyncTime', new Date().toISOString());
+            
+            showToast('Complete data exported! Excel opened for sync.', 'success');
+            
+            // Show export summary
+            console.log('📊 Export Summary:');
+            console.log(`👥 Students: ${students.length}`);
+            console.log(`💰 Payments: ${payments.length}`);
+            console.log(`💵 Total Income: ₹${totalIncome}`);
+            console.log(`📈 Tuition Income: ₹${tuitionIncome}`);
         }
-        
-        // Convert data to CSV format
+
+        // Convert array to CSV
         function convertToCSV(data) {
-            if (!data || data.length === 0) return '';
+            if (data.length === 0) return '';
             
             const headers = Object.keys(data[0]);
             const csvContent = [
                 headers.join(','),
-                ...data.map(row => 
-                    headers.map(header => {
-                        const value = row[header] || '';
-                        return `"${String(value).replace(/"/g, '""')}"`;
-                    }).join(',')
-                )
+                ...data.map(row => headers.map(header => `"${row[header] || ''}"`).join(','))
             ].join('\n');
             
             return csvContent;
         }
-        
+
         // Download CSV file
         function downloadCSV(csvContent, filename) {
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', filename);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
             link.click();
-            document.body.removeChild(link);
             URL.revokeObjectURL(url);
+        }
+
+        // Sync to OneDrive with comprehensive data preparation
+        function syncToOneDrive() {
+            showToast('Preparing data for OneDrive sync...', 'info');
+            
+            // Prepare all data for Excel
+            const excelStudents = JSON.parse(localStorage.getItem('excel_students') || '[]');
+            const excelPayments = JSON.parse(localStorage.getItem('excel_payments') || '[]');
+            
+            // Calculate comprehensive statistics
+            const totalIncome = transactions.filter(t => t.type === 'income').reduce((sum, t) => sum + t.amount, 0);
+            const totalExpenses = transactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+            const tuitionIncome = transactions.filter(t => t.type === 'income' && t.category === 'Tuition & Education').reduce((sum, t) => sum + t.amount, 0);
+            const cashBalance = transactions.filter(t => t.method === 'Cash').reduce((sum, t) => sum + (t.type === 'income' ? t.amount : -t.amount), 0);
+            const onlineBalance = transactions.filter(t => t.method !== 'Cash').reduce((sum, t) => sum + (t.type === 'income' ? t.amount : -t.amount), 0);
+            
+            // Open the OneDrive Excel file
+            window.open(EXCEL_DIRECT_LINK, '_blank');
+            
+            // Prepare detailed data summary for Excel entry
+            const syncData = {
+                lastSync: new Date().toLocaleString('en-IN'),
+                students: students.map(student => {
+                    const studentPayments = payments.filter(p => p.studentId === student.id);
+                    const totalPaid = studentPayments.reduce((sum, p) => sum + p.amount, 0);
+                    const totalDue = (student.monthlyFee * student.duration) - totalPaid;
+                    
+                    return {
+                        id: student.id,
+                        name: student.name,
+                        course: student.department,
+                        email: student.email,
+                        phone: student.phone || 'Not provided',
+                        monthlyFee: student.monthlyFee,
+                        duration: student.duration,
+                        totalCourseFee: student.monthlyFee * student.duration,
+                        amountPaid: totalPaid,
+                        amountDue: totalDue,
+                        status: totalDue <= 0 ? 'Completed' : 'Pending',
+                        joinDate: new Date(student.joinDate).toLocaleDateString('en-IN')
+                    };
+                }),
+                payments: payments.map(payment => ({
+                    id: payment.id,
+                    studentName: payment.studentName,
+                    month: payment.monthName,
+                    amount: payment.amount,
+                    date: new Date(payment.date).toLocaleDateString('en-IN'),
+                    method: payment.method || 'Cash',
+                    academicYear: new Date(payment.date).getFullYear() + '-' + (new Date(payment.date).getFullYear() + 1)
+                })),
+                financialSummary: {
+                    totalStudents: students.length,
+                    totalIncome: totalIncome,
+                    tuitionIncome: tuitionIncome,
+                    totalExpenses: totalExpenses,
+                    netBalance: totalIncome - totalExpenses,
+                    cashBalance: cashBalance,
+                    onlineBalance: onlineBalance,
+                    totalPayments: payments.length
+                }
+            };
+            
+            // Store sync data for reference
+            localStorage.setItem('lastSyncData', JSON.stringify(syncData));
+            localStorage.setItem('lastSyncTime', new Date().toISOString());
+            
+            // Show comprehensive data summary
+            console.log('📊 COMPLETE DATA FOR EXCEL SYNC:');
+            console.log('='.repeat(50));
+            console.log('📅 Sync Time:', syncData.lastSync);
+            console.log('👥 Total Students:', syncData.financialSummary.totalStudents);
+            console.log('💰 Total Payments:', syncData.financialSummary.totalPayments);
+            console.log('💵 Financial Summary:');
+            console.log(`   • Total Income: ₹${syncData.financialSummary.totalIncome}`);
+            console.log(`   • Tuition Income: ₹${syncData.financialSummary.tuitionIncome}`);
+            console.log(`   • Total Expenses: ₹${syncData.financialSummary.totalExpenses}`);
+            console.log(`   • Net Balance: ₹${syncData.financialSummary.netBalance}`);
+            console.log(`   • Cash Balance: ₹${syncData.financialSummary.cashBalance}`);
+            console.log(`   • Online Balance: ₹${syncData.financialSummary.onlineBalance}`);
+            console.log('='.repeat(50));
+            
+            if (syncData.students.length > 0) {
+                console.log('👥 STUDENTS DATA:');
+                syncData.students.forEach(student => {
+                    console.log(`${student.id}. ${student.name} | ${student.course} | ₹${student.monthlyFee}/month | Paid: ₹${student.amountPaid} | Due: ₹${student.amountDue} | Status: ${student.status}`);
+                });
+                console.log('='.repeat(50));
+            }
+            
+            if (syncData.payments.length > 0) {
+                console.log('💰 RECENT PAYMENTS:');
+                syncData.payments.slice(-10).forEach(payment => {
+                    console.log(`${payment.id}. ${payment.studentName} | ${payment.month} | ₹${payment.amount} | ${payment.date} | ${payment.method}`);
+                });
+                console.log('='.repeat(50));
+            }
+            
+            setTimeout(() => {
+                showToast('Excel opened! All data ready for sync. Check console for details.', 'success');
+            }, 1000);
+        }
+
+        // Delete student
+        function deleteStudent(studentId) {
+            if (confirm('Are you sure you want to delete this student and all their payment records?')) {
+                students = students.filter(s => s.id !== studentId);
+                payments = payments.filter(p => p.studentId !== studentId);
+                saveData();
+                displayStudents();
+                updateStats();
+                showToast('Student deleted successfully', 'success');
+            }
+        }
+
+        // Show add student form
+        function showAddStudentForm() {
+            showTab('students');
+            document.getElementById('studentName').focus();
+        }
+
+        // Delete transaction
+        function deleteTransaction(transactionId) {
+            if (confirm('Are you sure you want to delete this transaction?')) {
+                transactions = transactions.filter(t => t.id !== transactionId);
+                saveData();
+                displayTransactions();
+                displayDashboard();
+                updateStats();
+                showToast('Transaction deleted successfully', 'success');
+            }
+        }
+
+        // Display Analytics
+        function displayAnalytics() {
+            updateStats();
+            
+            // Category wise expense stats
+            const expenseCategories = {};
+            transactions.filter(t => t.type === 'expense').forEach(transaction => {
+                if (!expenseCategories[transaction.category]) {
+                    expenseCategories[transaction.category] = 0;
+                }
+                expenseCategories[transaction.category] += transaction.amount;
+            });
+            
+            const categoryContainer = document.getElementById('categoryStats');
+            if (Object.keys(expenseCategories).length === 0) {
+                categoryContainer.innerHTML = '<p class="text-gray-500 text-sm">No expense categories yet</p>';
+            } else {
+                categoryContainer.innerHTML = Object.entries(expenseCategories).map(([category, amount]) => `
+                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-xl">
+                        <div>
+                            <div class="font-medium text-sm">${category}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-bold text-red-600">₹${amount}</div>
+                        </div>
+                    </div>
+                `).join('');
+            }
         }
 
         // Backup data
         function backupData() {
-            try {
-                const backupData = {
-                    students: students,
-                    transactions: transactions,
-                    payments: payments,
-                    exportDate: new Date().toISOString()
-                };
-                
-                const dataStr = JSON.stringify(backupData, null, 2);
-                const dataBlob = new Blob([dataStr], {type: 'application/json'});
-                const url = URL.createObjectURL(dataBlob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `finance-backup-${new Date().toISOString().split('T')[0]}.json`;
-                link.click();
-                URL.revokeObjectURL(url);
-                
-                showToast('Backup downloaded successfully!', 'success');
-            } catch (error) {
-                console.error('Failed to backup data:', error);
-                showToast('Failed to backup data', 'error');
-            }
+            const backupData = {
+                students: students,
+                transactions: transactions,
+                payments: payments,
+                exportDate: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(backupData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `finance-backup-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            showToast('Backup downloaded successfully!', 'success');
         }
 
         // Save data to localStorage
@@ -2942,63 +1972,11 @@
             }, 3000);
         }
 
-        // Test JSONBin.io connection
-        async function testJSONBinConnection() {
-            try {
-                showToast('🔍 Testing JSONBin.io connection...', 'info');
-                
-                const testData = {
-                    test: true,
-                    timestamp: new Date().toISOString(),
-                    message: 'Connection test from Finance Tracker'
-                };
-                
-                const response = await fetch(DATABASE_CONFIG.endpoints[0], {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Master-Key': DATABASE_CONFIG.apiKeys.jsonbin,
-                        'X-Bin-Versioning': 'false'
-                    },
-                    body: JSON.stringify(testData)
-                });
-                
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log('✅ JSONBin.io connection test successful:', result);
-                    showToast('✅ JSONBin.io connection successful!', 'success');
-                    updateConnectionStatus(true);
-                    return true;
-                } else {
-                    const errorText = await response.text();
-                    console.error('❌ JSONBin.io connection test failed:', response.status, errorText);
-                    showToast('❌ JSONBin.io connection failed - check API key', 'error');
-                    updateConnectionStatus(false);
-                    return false;
-                }
-            } catch (error) {
-                console.error('❌ JSONBin.io connection error:', error);
-                showToast('❌ JSONBin.io connection error - check network', 'error');
-                updateConnectionStatus(false);
-                return false;
-            }
-        }
-
-        // Initialize application with auto-sync system
-        document.addEventListener('DOMContentLoaded', async function() {
-            // Initialize UI
+        // Auto-sync toggle handler
+        document.addEventListener('DOMContentLoaded', function() {
             showTab('dashboard');
             updateStats();
             updateSyncStatus();
-            
-            // Test JSONBin.io connection first
-            const connectionOk = await testJSONBinConnection();
-            
-            // Initialize Excel Auto-Sync System
-            ExcelAutoSync.init();
-            
-            // Initialize Database Sync System
-            DatabaseSync.init();
             
             // Setup auto-sync toggle
             const autoSyncToggle = document.getElementById('autoSyncToggle');
@@ -3007,43 +1985,34 @@
                 autoSyncToggle.addEventListener('change', function() {
                     autoSyncEnabled = this.checked;
                     localStorage.setItem('autoSyncEnabled', autoSyncEnabled.toString());
-                    
-                    if (autoSyncEnabled) {
-                        ExcelAutoSync.startAutoSync();
-                        showToast('✅ Auto-sync enabled - Cloud integration active!', 'success');
-                    } else {
-                        if (autoSyncInterval) {
-                            clearInterval(autoSyncInterval);
-                        }
-                        showToast('⏸️ Auto-sync disabled', 'info');
-                    }
+                    showToast(autoSyncEnabled ? 'Auto-sync enabled' : 'Auto-sync disabled', 'info');
                     updateSyncStatus();
                 });
             }
-
-            // Check for pending syncs on load
-            const excelSyncStatus = ExcelAutoSync.getSyncStatus();
-            const dbSyncStatus = DatabaseSync.getSyncStatus();
-            const totalPending = excelSyncStatus.pending + dbSyncStatus.pending;
-            
-            if (totalPending > 0) {
-                showToast(`📋 ${totalPending} items queued for sync (${excelSyncStatus.pending} Excel, ${dbSyncStatus.pending} DB)`, 'info');
-            }
-            
-            // Show welcome message with connection status
-            setTimeout(() => {
-                if (connectionOk) {
-                    showToast('🚀 Cloud & Database Auto-Sync Ready!', 'success');
-                    console.log('🔗 Excel file configured:', EXCEL_DIRECT_LINK);
-                } else {
-                    showToast('⚠️ System ready but database connection failed', 'warning');
-                }
-            }, 1000);
         });
         
         // Update sync status display
         function updateSyncStatus() {
-            updateSyncStatusDisplay();
+            const statusElement = document.getElementById('lastSyncStatus');
+            if (statusElement && lastSyncTime) {
+                const syncDate = new Date(lastSyncTime);
+                const now = new Date();
+                const diffMinutes = Math.floor((now - syncDate) / (1000 * 60));
+                
+                let statusText = '';
+                if (diffMinutes < 1) {
+                    statusText = 'Last sync: Just now';
+                } else if (diffMinutes < 60) {
+                    statusText = `Last sync: ${diffMinutes} minutes ago`;
+                } else if (diffMinutes < 1440) {
+                    const hours = Math.floor(diffMinutes / 60);
+                    statusText = `Last sync: ${hours} hour${hours > 1 ? 's' : ''} ago`;
+                } else {
+                    statusText = `Last sync: ${syncDate.toLocaleDateString('en-IN')}`;
+                }
+                
+                statusElement.textContent = statusText;
+            }
         }
 
         // Handle mobile back button for modal
@@ -3052,64 +2021,6 @@
                 closePaymentModal();
             }
         });
-
-        // Enhanced sync status display
-        function updateSyncStatusDisplay() {
-            const excelStatus = ExcelAutoSync.getSyncStatus();
-            const dbStatus = DatabaseSync.getSyncStatus();
-            
-            // Update main sync status
-            const statusElement = document.getElementById('lastSyncStatus');
-            if (statusElement) {
-                let statusText = '';
-                const totalPending = excelStatus.pending + dbStatus.pending;
-                
-                if (totalPending > 0) {
-                    statusText = `${totalPending} items pending sync`;
-                } else if (excelStatus.lastSync || dbStatus.lastSync) {
-                    const lastSync = new Date(Math.max(
-                        new Date(excelStatus.lastSync || 0),
-                        new Date(dbStatus.lastSync || 0)
-                    ));
-                    const now = new Date();
-                    const diffMinutes = Math.floor((now - lastSync) / (1000 * 60));
-                    
-                    if (diffMinutes < 1) {
-                        statusText = 'Last sync: Just now';
-                    } else if (diffMinutes < 60) {
-                        statusText = `Last sync: ${diffMinutes} minutes ago`;
-                    } else if (diffMinutes < 1440) {
-                        const hours = Math.floor(diffMinutes / 60);
-                        statusText = `Last sync: ${hours} hour${hours > 1 ? 's' : ''} ago`;
-                    } else {
-                        statusText = `Last sync: ${lastSync.toLocaleDateString('en-IN')}`;
-                    }
-                } else {
-                    statusText = 'No sync performed yet';
-                }
-                
-                statusElement.textContent = statusText;
-            }
-            
-            // Update queue counts
-            const excelQueueElement = document.getElementById('excelQueueCount');
-            const dbQueueElement = document.getElementById('dbQueueCount');
-            
-            if (excelQueueElement) {
-                excelQueueElement.textContent = `${excelStatus.pending} pending`;
-            }
-            
-            if (dbQueueElement) {
-                dbQueueElement.textContent = `${dbStatus.pending} pending`;
-                dbQueueElement.className = dbStatus.isOnline ? 'text-indigo-600' : 'text-orange-600';
-            }
-            
-            // Update connection status based on database connectivity
-            updateConnectionStatus(dbStatus.isOnline);
-        }
-        
-        // Update sync status every 30 seconds
-        setInterval(updateSyncStatusDisplay, 30000);
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'974495ad152eff67',t:'MTc1NjA1NjcwMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97443181a23133de',t:'MTc1NjA1MjU5OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
